@@ -47,3 +47,16 @@ create table comments (
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+create table comment_reactions (
+  comment_id varchar(255) not null,
+  user_id varchar(255) not null,
+  reaction_type varchar(50) not null,
+  created_at timestamp not null,
+  primary key(comment_id, user_id),
+  foreign key (comment_id) references comments(id) on delete cascade,
+  foreign key (user_id) references users(id) on delete cascade
+);
+
+create index idx_comment_reactions_comment on comment_reactions(comment_id);
+create index idx_comment_reactions_user on comment_reactions(user_id);

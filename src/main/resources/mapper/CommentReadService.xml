@@ -7,19 +7,24 @@
         C.body commentBody,
         C.created_at commentCreatedAt,
         C.article_id commentArticleId,
+        COUNT(CASE WHEN CR.reaction_type = 'LIKE' THEN 1 END) as likesCount,
+        COUNT(CASE WHEN CR.reaction_type = 'DISLIKE' THEN 1 END) as dislikesCount,
+        MAX(CASE WHEN CR.user_id = #{currentUserId} THEN CR.reaction_type END) as currentUserReaction,
         <include refid="io.spring.infrastructure.mybatis.readservice.ArticleReadService.profileColumns"/>
         from comments C
-        left join users U
-        on C.user_id = U.id
+        left join users U on C.user_id = U.id
+        left join comment_reactions CR on C.id = CR.comment_id
     </sql>
 
     <select id="findById" resultMap="transfer.data.commentData">
         <include refid="selectCommentData"/>
         where C.id = #{id}
+        GROUP BY C.id, C.body, C.created_at, C.article_id, U.id, U.username, U.bio, U.image
     </select>
     <select id="findByArticleId" resultMap="transfer.data.commentData">
         <include refid="selectCommentData"/>
         where C.article_id = #{articleId}
+        GROUP BY C.id, C.body, C.created_at, C.article_id, U.id, U.username, U.bio, U.image
     </select>
     <select id="findByArticleIdWithCursor" resultMap="transfer.data.commentData">
         <include refid="selectCommentData"/>
@@ -32,6 +37,7 @@
             AND C.created_at > #{page.cursor}
         </if>
         </where>
+        GROUP BY C.id, C.body, C.created_at, C.article_id, U.id, U.username, U.bio, U.image
         <if test='page.direction.name() == "NEXT"'>
             order by C.created_at desc
         </if>

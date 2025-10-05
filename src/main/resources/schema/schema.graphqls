@@ -36,6 +36,10 @@ type Mutation {
     ### Comment
     addComment(slug: String!, body: String!): CommentPayload
     deleteComment(slug: String!, id: ID!): DeletionStatus
+    likeComment(slug: String!, commentId: ID!): CommentPayload
+    unlikeComment(slug: String!, commentId: ID!): CommentPayload
+    dislikeComment(slug: String!, commentId: ID!): CommentPayload
+    undislikeComment(slug: String!, commentId: ID!): CommentPayload
 }
 
 schema {
@@ -76,6 +80,9 @@ type Comment {
     body: String!
     createdAt: String!
     updatedAt: String!
+    likesCount: Int!
+    dislikesCount: Int!
+    currentUserReaction: String
 }
 
 type CommentEdge {

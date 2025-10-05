@@ -35,6 +35,9 @@
         <result column="commentCreatedAt" property="createdAt"/>
         <result column="commentCreatedAt" property="updatedAt"/>
         <result column="commentArticleId" property="articleId"/>
+        <result column="likesCount" property="likesCount"/>
+        <result column="dislikesCount" property="dislikesCount"/>
+        <result column="currentUserReaction" property="currentUserReaction"/>
         <association property="profileData" resultMap="profileData"/>
     </resultMap>
 </mapper>

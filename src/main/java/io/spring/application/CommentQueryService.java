@@ -21,21 +21,24 @@ public class CommentQueryService {
   private UserRelationshipQueryService userRelationshipQueryService;
 
   public Optional<CommentData> findById(String id, User user) {
-    CommentData commentData = commentReadService.findById(id);
+    CommentData commentData = commentReadService.findById(id, user != null ? user.getId() : null);
     if (commentData == null) {
       return Optional.empty();
     } else {
-      commentData
-          .getProfileData()
-          .setFollowing(
-              userRelationshipQueryService.isUserFollowing(
-                  user.getId(), commentData.getProfileData().getId()));
+      if (user != null) {
+        commentData
+            .getProfileData()
+            .setFollowing(
+                userRelationshipQueryService.isUserFollowing(
+                    user.getId(), commentData.getProfileData().getId()));
+      }
     }
     return Optional.ofNullable(commentData);
   }
 
   public List<CommentData> findByArticleId(String articleId, User user) {
-    List<CommentData> comments = commentReadService.findByArticleId(articleId);
+    List<CommentData> comments =
+        commentReadService.findByArticleId(articleId, user != null ? user.getId() : null);
     if (comments.size() > 0 && user != null) {
       Set<String> followingAuthors =
           userRelationshipQueryService.followingAuthors(
@@ -55,7 +58,9 @@ public class CommentQueryService {
 
   public CursorPager<CommentData> findByArticleIdWithCursor(
       String articleId, User user, CursorPageParameter<DateTime> page) {
-    List<CommentData> comments = commentReadService.findByArticleIdWithCursor(articleId, page);
+    List<CommentData> comments =
+        commentReadService.findByArticleIdWithCursor(
+            articleId, user != null ? user.getId() : null, page);
     if (comments.isEmpty()) {
       return new CursorPager<>(new ArrayList<>(), page.getDirection(), false);
     }

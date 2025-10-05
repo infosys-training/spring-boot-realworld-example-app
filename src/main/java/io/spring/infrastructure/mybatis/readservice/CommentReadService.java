@@ -9,10 +9,13 @@ import org.joda.time.DateTime;
 
 @Mapper
 public interface CommentReadService {
-  CommentData findById(@Param("id") String id);
+  CommentData findById(@Param("id") String id, @Param("currentUserId") String currentUserId);
 
-  List<CommentData> findByArticleId(@Param("articleId") String articleId);
+  List<CommentData> findByArticleId(
+      @Param("articleId") String articleId, @Param("currentUserId") String currentUserId);
 
   List<CommentData> findByArticleIdWithCursor(
-      @Param("articleId") String articleId, @Param("page") CursorPageParameter<DateTime> page);
+      @Param("articleId") String articleId,
+      @Param("currentUserId") String currentUserId,
+      @Param("page") CursorPageParameter<DateTime> page);
 }
