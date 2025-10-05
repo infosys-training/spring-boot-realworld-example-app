@@ -39,6 +39,16 @@ const ArticleAPI = {
       )}&${getQuery(10, page)}`
     ),
 
+  bookmark: (slug) =>
+    axios.post(`${SERVER_BASE_URL}/articles/${slug}/bookmark`),
+
+  bookmarkedBy: (author, page) =>
+    axios.get(
+      `${SERVER_BASE_URL}/articles?bookmarked=${encodeURIComponent(
+        author
+      )}&${getQuery(10, page)}`
+    ),
+
   feed: (page, limit = 10) =>
     axios.get(`${SERVER_BASE_URL}/articles/feed?${getQuery(limit, page)}`),
 
@@ -46,6 +56,9 @@ const ArticleAPI = {
 
   unfavorite: (slug) =>
     axios.delete(`${SERVER_BASE_URL}/articles/${slug}/favorite`),
+
+  unbookmark: (slug) =>
+    axios.delete(`${SERVER_BASE_URL}/articles/${slug}/bookmark`),
 
   update: async (article, token) => {
     const { data, status } = await axios.put(
