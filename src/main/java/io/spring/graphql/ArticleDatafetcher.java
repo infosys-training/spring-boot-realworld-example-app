@@ -156,11 +156,69 @@ public class ArticleDatafetcher {
               null,
               null,
               profile.getUsername(),
+              null,
               new CursorPageParameter<>(DateTimeCursor.parse(after), first, Direction.NEXT),
               current);
     } else {
       articles =
           articleQueryService.findRecentArticlesWithCursor(
+              null,
+              null,
+              profile.getUsername(),
+              null,
+              new CursorPageParameter<>(DateTimeCursor.parse(before), last, Direction.PREV),
+              current);
+    }
+    graphql.relay.PageInfo pageInfo = buildArticlePageInfo(articles);
+
+    ArticlesConnection articlesConnection =
+        ArticlesConnection.newBuilder()
+            .pageInfo(pageInfo)
+            .edges(
+                articles.getData().stream()
+                    .map(
+                        a ->
+                            ArticleEdge.newBuilder()
+                                .cursor(a.getCursor().toString())
+                                .node(buildArticleResult(a))
+                                .build())
+                    .collect(Collectors.toList()))
+            .build();
+    return DataFetcherResult.<ArticlesConnection>newResult()
+        .data(articlesConnection)
+        .localContext(
+            articles.getData().stream().collect(Collectors.toMap(ArticleData::getSlug, a -> a)))
+        .build();
+  }
+
+  @DgsData(parentType = PROFILE.TYPE_NAME, field = PROFILE.Bookmarks)
+  public DataFetcherResult<ArticlesConnection> userBookmarks(
+      @InputArgument("first") Integer first,
+      @InputArgument("after") String after,
+      @InputArgument("last") Integer last,
+      @InputArgument("before") String before,
+      DgsDataFetchingEnvironment dfe) {
+    if (first == null && last == null) {
+      throw new IllegalArgumentException("first 和 last 必须只存在一个");
+    }
+
+    User current = SecurityUtil.getCurrentUser().orElse(null);
+    Profile profile = dfe.getSource();
+
+    CursorPager<ArticleData> articles;
+    if (first != null) {
+      articles =
+          articleQueryService.findRecentArticlesWithCursor(
+              null,
+              null,
+              null,
+              profile.getUsername(),
+              new CursorPageParameter<>(DateTimeCursor.parse(after), first, Direction.NEXT),
+              current);
+    } else {
+      articles =
+          articleQueryService.findRecentArticlesWithCursor(
+              null,
               null,
               null,
               profile.getUsername(),
@@ -210,6 +268,7 @@ public class ArticleDatafetcher {
               null,
               profile.getUsername(),
               null,
+              null,
               new CursorPageParameter<>(DateTimeCursor.parse(after), first, Direction.NEXT),
               current);
     } else {
@@ -217,6 +276,7 @@ public class ArticleDatafetcher {
           articleQueryService.findRecentArticlesWithCursor(
               null,
               profile.getUsername(),
+              null,
               null,
               new CursorPageParameter<>(DateTimeCursor.parse(before), last, Direction.PREV),
               current);
@@ -250,6 +310,7 @@ public class ArticleDatafetcher {
       @InputArgument("before") String before,
       @InputArgument("authoredBy") String authoredBy,
       @InputArgument("favoritedBy") String favoritedBy,
+      @InputArgument("bookmarkedBy") String bookmarkedBy,
       @InputArgument("withTag") String withTag,
       DgsDataFetchingEnvironment dfe) {
     if (first == null && last == null) {
@@ -265,6 +326,7 @@ public class ArticleDatafetcher {
               withTag,
               authoredBy,
               favoritedBy,
+              bookmarkedBy,
               new CursorPageParameter<>(DateTimeCursor.parse(after), first, Direction.NEXT),
               current);
     } else {
@@ -273,6 +335,7 @@ public class ArticleDatafetcher {
               withTag,
               authoredBy,
               favoritedBy,
+              bookmarkedBy,
               new CursorPageParameter<>(DateTimeCursor.parse(before), last, Direction.PREV),
               current);
     }
@@ -375,6 +438,8 @@ public class ArticleDatafetcher {
         .description(articleData.getDescription())
         .favorited(articleData.isFavorited())
         .favoritesCount(articleData.getFavoritesCount())
+        .bookmarked(articleData.isBookmarked())
+        .bookmarksCount(articleData.getBookmarksCount())
         .slug(articleData.getSlug())
         .tagList(articleData.getTagList())
         .title(articleData.getTitle())
