@@ -44,6 +44,14 @@ public class UsersApi {
         .body(userResponse(new UserWithToken(userData, jwtService.toToken(user))));
   }
 
+  @RequestMapping(path = "/createUser", method = POST)
+  public ResponseEntity createUserEndpoint(@Valid @RequestBody RegisterParam registerParam) {
+    User user = userService.createUser(registerParam);
+    UserData userData = userQueryService.findById(user.getId()).get();
+    return ResponseEntity.status(201)
+        .body(userResponse(new UserWithToken(userData, jwtService.toToken(user))));
+  }
+
   @RequestMapping(path = "/users/login", method = POST)
   public ResponseEntity userLogin(@Valid @RequestBody LoginParam loginParam) {
     Optional<User> optional = userRepository.findByEmail(loginParam.getEmail());

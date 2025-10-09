@@ -268,4 +268,58 @@ public class UsersApiTest {
         .statusCode(422)
         .body("message", equalTo("invalid email or password"));
   }
+
+  @Test
+  public void should_create_user_via_createUser_endpoint_success() throws Exception {
+    String email = "test@example.com";
+    String username = "testuser";
+
+    when(jwtService.toToken(any())).thenReturn("test-token-123");
+    User user = new User(email, username, "hashedpass", "", defaultAvatar);
+    UserData userData = new UserData(user.getId(), email, username, "", defaultAvatar);
+    when(userReadService.findById(any())).thenReturn(userData);
+
+    when(userService.createUser(any())).thenReturn(user);
+
+    when(userRepository.findByUsername(eq(username))).thenReturn(Optional.empty());
+    when(userRepository.findByEmail(eq(email))).thenReturn(Optional.empty());
+
+    Map<String, Object> param = prepareRegisterParameter(email, username);
+
+    given()
+        .contentType("application/json")
+        .body(param)
+        .when()
+        .post("/createUser")
+        .then()
+        .statusCode(201)
+        .body("user.email", equalTo(email))
+        .body("user.username", equalTo(username))
+        .body("user.bio", equalTo(""))
+        .body("user.image", equalTo(defaultAvatar))
+        .body("user.token", equalTo("test-token-123"));
+
+    verify(userService).createUser(any());
+  }
+
+  @Test
+  public void should_show_error_for_duplicated_username_via_createUser_endpoint() throws Exception {
+    String email = "new@example.com";
+    String username = "existinguser";
+
+    when(userRepository.findByUsername(eq(username)))
+        .thenReturn(Optional.of(new User(email, username, "123", "bio", "")));
+    when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
+
+    Map<String, Object> param = prepareRegisterParameter(email, username);
+
+    given()
+        .contentType("application/json")
+        .body(param)
+        .when()
+        .post("/createUser")
+        .then()
+        .statusCode(422)
+        .body("errors.username[0]", equalTo("duplicated username"));
+  }
 }
