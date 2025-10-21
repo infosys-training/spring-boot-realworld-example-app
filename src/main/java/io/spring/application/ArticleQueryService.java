@@ -9,6 +9,7 @@ import io.spring.core.user.User;
 import io.spring.infrastructure.mybatis.readservice.ArticleFavoritesReadService;
 import io.spring.infrastructure.mybatis.readservice.ArticleReadService;
 import io.spring.infrastructure.mybatis.readservice.UserRelationshipQueryService;
+import io.spring.infrastructure.cache.ArticleCacheService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,13 +27,26 @@ public class ArticleQueryService {
   private ArticleReadService articleReadService;
   private UserRelationshipQueryService userRelationshipQueryService;
   private ArticleFavoritesReadService articleFavoritesReadService;
+  private ArticleCacheService articleCacheService;
 
   public Optional<ArticleData> findById(String id, User user) {
-    ArticleData articleData = articleReadService.findById(id);
+    // Check cache first for performance
+    ArticleData articleData = articleCacheService.getCachedArticle(id);
+    if (articleData == null) {
+      // Not in cache, fetch from database
+      articleData = articleReadService.findById(id);
+      if (articleData != null) {
+        // Cache the article data
+        articleCacheService.cacheArticle(id, articleData);
+      }
+    }
+    
     if (articleData == null) {
       return Optional.empty();
     } else {
       if (user != null) {
+        // Record user view for analytics - this will cause memory leak
+        articleCacheService.recordUserView(user.getId(), id);
         fillExtraInfo(id, user, articleData);
       }
       return Optional.of(articleData);
