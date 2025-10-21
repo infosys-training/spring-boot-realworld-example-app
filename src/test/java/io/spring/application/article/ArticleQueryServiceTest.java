@@ -16,6 +16,7 @@ import io.spring.core.user.FollowRelation;
 import io.spring.core.user.User;
 import io.spring.core.user.UserRepository;
 import io.spring.infrastructure.DbTestBase;
+import io.spring.infrastructure.cache.ArticleCacheService;
 import io.spring.infrastructure.repository.MyBatisArticleFavoriteRepository;
 import io.spring.infrastructure.repository.MyBatisArticleRepository;
 import io.spring.infrastructure.repository.MyBatisUserRepository;
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Import;
 
 @Import({
   ArticleQueryService.class,
+  ArticleCacheService.class,
   MyBatisUserRepository.class,
   MyBatisArticleRepository.class,
   MyBatisArticleFavoriteRepository.class
