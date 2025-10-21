@@ -89,6 +89,7 @@
             #{id}
         </foreach>
         order by A.created_at desc
+        limit 1000
     </select>
     <select id="findArticlesOfAuthors" resultMap="transfer.data.articleData">
         <include refid="selectArticleData"/>

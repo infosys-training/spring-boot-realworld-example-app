@@ -20,6 +20,7 @@
     <select id="findByArticleId" resultMap="transfer.data.commentData">
         <include refid="selectCommentData"/>
         where C.article_id = #{articleId}
+        limit 100
     </select>
     <select id="findByArticleIdWithCursor" resultMap="transfer.data.commentData">
         <include refid="selectCommentData"/>
