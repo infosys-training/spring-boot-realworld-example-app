@@ -6,10 +6,10 @@ import io.spring.application.data.ArticleData;
 import io.spring.application.data.ArticleDataList;
 import io.spring.application.data.ArticleFavoriteCount;
 import io.spring.core.user.User;
+import io.spring.infrastructure.cache.ArticleCacheService;
 import io.spring.infrastructure.mybatis.readservice.ArticleFavoritesReadService;
 import io.spring.infrastructure.mybatis.readservice.ArticleReadService;
 import io.spring.infrastructure.mybatis.readservice.UserRelationshipQueryService;
-import io.spring.infrastructure.cache.ArticleCacheService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class ArticleQueryService {
         articleCacheService.cacheArticle(id, articleData);
       }
     }
-    
+
     if (articleData == null) {
       return Optional.empty();
     } else {

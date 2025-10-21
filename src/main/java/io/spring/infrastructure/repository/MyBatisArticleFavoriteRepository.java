@@ -19,7 +19,8 @@ public class MyBatisArticleFavoriteRepository implements ArticleFavoriteReposito
   @Override
   public void save(ArticleFavorite articleFavorite) {
     // Check if favorite already exists
-    ArticleFavorite existing = mapper.find(articleFavorite.getArticleId(), articleFavorite.getUserId());
+    ArticleFavorite existing =
+        mapper.find(articleFavorite.getArticleId(), articleFavorite.getUserId());
     if (existing == null) {
       // Small delay to simulate processing time - makes race condition more likely
       try {
