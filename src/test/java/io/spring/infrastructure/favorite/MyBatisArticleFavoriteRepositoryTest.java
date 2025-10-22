@@ -31,4 +31,27 @@ public class MyBatisArticleFavoriteRepositoryTest extends DbTestBase {
     articleFavoriteRepository.remove(articleFavorite);
     Assertions.assertFalse(articleFavoriteRepository.find("123", "456").isPresent());
   }
+
+  @Test
+  public void should_handle_duplicate_favorites_idempotently() {
+    String articleId = "duplicate-article-123";
+    String userId = "duplicate-user-456";
+
+    ArticleFavorite favorite = new ArticleFavorite(articleId, userId);
+    articleFavoriteRepository.save(favorite);
+
+    articleFavoriteRepository.save(favorite);
+    articleFavoriteRepository.save(favorite);
+
+    Assertions.assertTrue(
+        articleFavoriteRepository.find(articleId, userId).isPresent(),
+        "Favorite should exist after multiple save attempts");
+
+    ArticleFavorite secondFavorite = new ArticleFavorite(articleId, userId);
+    articleFavoriteRepository.save(secondFavorite);
+
+    Assertions.assertTrue(
+        articleFavoriteRepository.find(articleId, userId).isPresent(),
+        "Save operation should be idempotent - no exceptions thrown on duplicate");
+  }
 }

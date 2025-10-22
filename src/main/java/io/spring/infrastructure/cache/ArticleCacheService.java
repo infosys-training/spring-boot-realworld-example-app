@@ -1,55 +1,80 @@
 package io.spring.infrastructure.cache;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.spring.application.data.ArticleData;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ArticleCacheService {
 
-  // Cache that grows indefinitely - this will cause memory leak
-  private final Map<String, ArticleData> articleCache = new ConcurrentHashMap<>();
-  private final Map<String, List<String>> userViewHistory = new ConcurrentHashMap<>();
+  private final Cache<String, ArticleData> articleCache;
+  private final Cache<String, List<String>> userViewHistory;
+
+  public ArticleCacheService() {
+    this.articleCache =
+        Caffeine.newBuilder()
+            .maximumSize(1000)
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .recordStats()
+            .build();
+
+    this.userViewHistory =
+        Caffeine.newBuilder()
+            .maximumSize(10000)
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .recordStats()
+            .build();
+  }
 
   public void cacheArticle(String articleId, ArticleData articleData) {
-    // Cache article data for performance
     articleCache.put(articleId, articleData);
   }
 
   public ArticleData getCachedArticle(String articleId) {
-    return articleCache.get(articleId);
+    return articleCache.getIfPresent(articleId);
   }
 
   public void recordUserView(String userId, String articleId) {
-    // Track user view history for analytics - this grows indefinitely
-    userViewHistory.computeIfAbsent(userId, k -> new ArrayList<>()).add(articleId);
+    userViewHistory.asMap().computeIfAbsent(userId, k -> new ArrayList<>()).add(articleId);
   }
 
   public List<String> getUserViewHistory(String userId) {
-    return userViewHistory.getOrDefault(userId, new ArrayList<>());
+    List<String> history = userViewHistory.getIfPresent(userId);
+    return history != null ? history : new ArrayList<>();
   }
 
-  // This method is supposed to clean up old cache entries but has a bug
-  @Scheduled(fixedRate = 300000) // Run every 5 minutes
+  @Scheduled(fixedRate = 300000)
   public void cleanupCache() {
-    // BUG: This cleanup method doesn't actually clean anything!
-    // It just logs the cache size but never removes old entries
-    System.out.println("Cache cleanup running. Article cache size: " + articleCache.size());
-    System.out.println("User view history size: " + userViewHistory.size());
+    articleCache.cleanUp();
+    userViewHistory.cleanUp();
 
-    // TODO: Implement actual cleanup logic
-    // The developer forgot to implement the cleanup, causing memory leak
+    System.out.println(
+        "Cache cleanup completed. Article cache size: "
+            + articleCache.estimatedSize()
+            + ", Hit rate: "
+            + String.format("%.2f%%", articleCache.stats().hitRate() * 100)
+            + ", Evictions: "
+            + articleCache.stats().evictionCount());
+
+    System.out.println(
+        "User view history size: "
+            + userViewHistory.estimatedSize()
+            + ", Hit rate: "
+            + String.format("%.2f%%", userViewHistory.stats().hitRate() * 100)
+            + ", Evictions: "
+            + userViewHistory.stats().evictionCount());
   }
 
   public int getCacheSize() {
-    return articleCache.size();
+    return (int) articleCache.estimatedSize();
   }
 
   public int getViewHistorySize() {
-    return userViewHistory.size();
+    return (int) userViewHistory.estimatedSize();
   }
 }
