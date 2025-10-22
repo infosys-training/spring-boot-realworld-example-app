@@ -8,24 +8,37 @@ import io.spring.core.service.JwtService;
 import io.spring.core.user.User;
 import java.util.Date;
 import java.util.Optional;
+import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultJwtService implements JwtService {
+  private static final Logger logger = LoggerFactory.getLogger(DefaultJwtService.class);
   private final SecretKey signingKey;
   private final SignatureAlgorithm signatureAlgorithm;
   private int sessionTime;
+  private final String secret;
 
   @Autowired
   public DefaultJwtService(
       @Value("${jwt.secret}") String secret, @Value("${jwt.sessionTime}") int sessionTime) {
+    this.secret = secret;
     this.sessionTime = sessionTime;
     signatureAlgorithm = SignatureAlgorithm.HS512;
     this.signingKey = new SecretKeySpec(secret.getBytes(), signatureAlgorithm.getJcaName());
+  }
+
+  @PostConstruct
+  public void init() {
+    logger.info("JWT Service initialized");
+    logger.info("Signing key length: {} bytes", secret.length());
+    logger.info("Session time: {} seconds ({} hours)", sessionTime, sessionTime / 3600.0);
   }
 
   @Override
@@ -42,8 +55,12 @@ public class DefaultJwtService implements JwtService {
     try {
       Jws<Claims> claimsJws =
           Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
-      return Optional.ofNullable(claimsJws.getBody().getSubject());
+      String subject = claimsJws.getBody().getSubject();
+      logger.debug("Successfully validated token for subject: {}", subject);
+      return Optional.ofNullable(subject);
     } catch (Exception e) {
+      logger.debug(
+          "Token validation failed: {} - {}", e.getClass().getSimpleName(), e.getMessage());
       return Optional.empty();
     }
   }
