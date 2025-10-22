@@ -17,15 +17,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultJwtService implements JwtService {
   private final SecretKey signingKey;
+  private final SecretKey oldSigningKey;
   private final SignatureAlgorithm signatureAlgorithm;
   private int sessionTime;
 
   @Autowired
   public DefaultJwtService(
-      @Value("${jwt.secret}") String secret, @Value("${jwt.sessionTime}") int sessionTime) {
+      @Value("${jwt.secret}") String secret,
+      @Value("${jwt.secret.old:}") String oldSecret,
+      @Value("${jwt.sessionTime}") int sessionTime) {
     this.sessionTime = sessionTime;
     signatureAlgorithm = SignatureAlgorithm.HS512;
     this.signingKey = new SecretKeySpec(secret.getBytes(), signatureAlgorithm.getJcaName());
+    this.oldSigningKey =
+        oldSecret.isEmpty()
+            ? null
+            : new SecretKeySpec(oldSecret.getBytes(), signatureAlgorithm.getJcaName());
   }
 
   @Override
@@ -44,6 +51,15 @@ public class DefaultJwtService implements JwtService {
           Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
       return Optional.ofNullable(claimsJws.getBody().getSubject());
     } catch (Exception e) {
+      if (oldSigningKey != null) {
+        try {
+          Jws<Claims> claimsJws =
+              Jwts.parserBuilder().setSigningKey(oldSigningKey).build().parseClaimsJws(token);
+          return Optional.ofNullable(claimsJws.getBody().getSubject());
+        } catch (Exception ex) {
+          return Optional.empty();
+        }
+      }
       return Optional.empty();
     }
   }
