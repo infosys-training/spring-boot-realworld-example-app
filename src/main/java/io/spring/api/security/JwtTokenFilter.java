@@ -44,7 +44,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
               }
             });
 
-    filterChain.doFilter(request, response);
+    try {
+      filterChain.doFilter(request, response);
+    } finally {
+      SecurityContextHolder.clearContext();
+    }
   }
 
   private Optional<String> getTokenString(String header) {
