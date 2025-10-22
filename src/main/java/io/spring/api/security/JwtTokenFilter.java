@@ -9,6 +9,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +19,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @SuppressWarnings("SpringJavaAutowiringInspection")
 public class JwtTokenFilter extends OncePerRequestFilter {
+  private static final Logger logger = LoggerFactory.getLogger(JwtTokenFilter.class);
+
   @Autowired private UserRepository userRepository;
   @Autowired private JwtService jwtService;
   private final String header = "Authorization";
@@ -25,10 +29,20 @@ public class JwtTokenFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    getTokenString(request.getHeader(header))
-        .flatMap(token -> jwtService.getSubFromToken(token))
+    logger.debug("Authorization header: {}", request.getHeader(header));
+    Optional<String> tokenOpt = getTokenString(request.getHeader(header));
+    logger.debug("Extracted token present: {}", tokenOpt.isPresent());
+
+    tokenOpt
+        .flatMap(
+            token -> {
+              Optional<String> userIdOpt = jwtService.getSubFromToken(token);
+              logger.debug("User ID from token: {}", userIdOpt);
+              return userIdOpt;
+            })
         .ifPresent(
             id -> {
+              logger.debug("User found in database: {}", userRepository.findById(id).isPresent());
               if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 userRepository
                     .findById(id)
