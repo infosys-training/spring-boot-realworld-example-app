@@ -10,12 +10,15 @@ import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultJwtService implements JwtService {
+  private static final Logger logger = LoggerFactory.getLogger(DefaultJwtService.class);
   private final SecretKey signingKey;
   private final SignatureAlgorithm signatureAlgorithm;
   private int sessionTime;
@@ -40,10 +43,16 @@ public class DefaultJwtService implements JwtService {
   @Override
   public Optional<String> getSubFromToken(String token) {
     try {
+      logger.debug("Attempting to parse JWT token");
       Jws<Claims> claimsJws =
           Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
-      return Optional.ofNullable(claimsJws.getBody().getSubject());
+      String subject = claimsJws.getBody().getSubject();
+      logger.debug("Successfully parsed JWT token, subject: {}", subject);
+      return Optional.ofNullable(subject);
     } catch (Exception e) {
+      logger.error(
+          "Failed to parse JWT token: {} - {}", e.getClass().getSimpleName(), e.getMessage());
+      logger.debug("JWT parsing exception details", e);
       return Optional.empty();
     }
   }
