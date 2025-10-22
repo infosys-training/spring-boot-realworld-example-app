@@ -14,7 +14,7 @@ public class ArticleCacheService {
 
   private static final long CACHE_EXPIRATION_MINUTES = 30;
 
-  private static class CachedArticle {
+  static class CachedArticle {
     final ArticleData data;
     final Instant timestamp;
 
@@ -22,15 +22,25 @@ public class ArticleCacheService {
       this.data = data;
       this.timestamp = Instant.now();
     }
+
+    CachedArticle(ArticleData data, Instant timestamp) {
+      this.data = data;
+      this.timestamp = timestamp;
+    }
   }
 
-  private static class ViewRecord {
+  static class ViewRecord {
     final String articleId;
     final Instant timestamp;
 
     ViewRecord(String articleId) {
       this.articleId = articleId;
       this.timestamp = Instant.now();
+    }
+
+    ViewRecord(String articleId, Instant timestamp) {
+      this.articleId = articleId;
+      this.timestamp = timestamp;
     }
   }
 
