@@ -83,6 +83,72 @@ public class CurrentUserApiTest extends TestWithCurrentUser {
   }
 
   @Test
+  public void should_get_current_user_with_bearer_token() throws Exception {
+    when(userQueryService.findById(any())).thenReturn(Optional.of(userData));
+
+    given()
+        .header("Authorization", "Bearer " + token)
+        .contentType("application/json")
+        .when()
+        .get("/user")
+        .then()
+        .statusCode(200)
+        .body("user.email", equalTo(email))
+        .body("user.username", equalTo(username))
+        .body("user.token", equalTo(token));
+  }
+
+  @Test
+  public void should_get_current_user_with_token_and_leading_whitespace() throws Exception {
+    when(userQueryService.findById(any())).thenReturn(Optional.of(userData));
+
+    given()
+        .header("Authorization", "  Token " + token)
+        .contentType("application/json")
+        .when()
+        .get("/user")
+        .then()
+        .statusCode(200)
+        .body("user.email", equalTo(email));
+  }
+
+  @Test
+  public void should_get_current_user_with_token_and_multiple_spaces() throws Exception {
+    when(userQueryService.findById(any())).thenReturn(Optional.of(userData));
+
+    given()
+        .header("Authorization", "Token  " + token)
+        .contentType("application/json")
+        .when()
+        .get("/user")
+        .then()
+        .statusCode(200)
+        .body("user.email", equalTo(email));
+  }
+
+  @Test
+  public void should_get_401_with_invalid_prefix() throws Exception {
+    given()
+        .contentType("application/json")
+        .header("Authorization", "Invalid " + token)
+        .when()
+        .get("/user")
+        .then()
+        .statusCode(401);
+  }
+
+  @Test
+  public void should_get_401_with_missing_prefix() throws Exception {
+    given()
+        .contentType("application/json")
+        .header("Authorization", token)
+        .when()
+        .get("/user")
+        .then()
+        .statusCode(401);
+  }
+
+  @Test
   public void should_update_current_user_profile() throws Exception {
     String newEmail = "newemail@example.com";
     String newBio = "updated";
