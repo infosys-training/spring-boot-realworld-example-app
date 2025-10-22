@@ -29,7 +29,7 @@
         DISTINCT(A.id) articleId, A.created_at
         from
         articles A
-        inner join article_tags AT on A.id = AT.article_id
+        left join article_tags AT on A.id = AT.article_id
         left join tags T on T.id = AT.tag_id
         left join article_favorites AF on AF.article_id = A.id
         left join users AU on AU.id = A.user_id
@@ -65,7 +65,7 @@
         count(DISTINCT A.id)
         from
         articles A
-        inner join article_tags AT on A.id = AT.article_id
+        left join article_tags AT on A.id = AT.article_id
         left join tags T on T.id = AT.tag_id
         left join article_favorites AF on AF.article_id = A.id
         left join users AU on AU.id = A.user_id
