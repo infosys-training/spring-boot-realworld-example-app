@@ -227,4 +227,21 @@ public class ArticleQueryServiceTest extends DbTestBase {
     ArticleData articleData = anotherUserFeed.getArticleDatas().get(0);
     Assertions.assertTrue(articleData.getProfileData().isFollowing());
   }
+
+  @Test
+  public void should_query_articles_without_tags() {
+    Article articleWithoutTags =
+        new Article("article without tags", "desc", "body", Arrays.asList(), user.getId());
+    articleRepository.save(articleWithoutTags);
+
+    ArticleDataList recentArticles =
+        queryService.findRecentArticles(null, null, null, new Page(), user);
+    Assertions.assertEquals(recentArticles.getCount(), 2);
+    Assertions.assertEquals(recentArticles.getArticleDatas().size(), 2);
+
+    boolean foundArticleWithoutTags =
+        recentArticles.getArticleDatas().stream()
+            .anyMatch(a -> a.getId().equals(articleWithoutTags.getId()));
+    Assertions.assertTrue(foundArticleWithoutTags);
+  }
 }
