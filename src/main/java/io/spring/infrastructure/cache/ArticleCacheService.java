@@ -24,6 +24,10 @@ public class ArticleCacheService {
     return articleCache.get(articleId);
   }
 
+  public void invalidateArticle(String articleId) {
+    articleCache.remove(articleId);
+  }
+
   public void recordUserView(String userId, String articleId) {
     // Track user view history for analytics - this grows indefinitely
     userViewHistory.computeIfAbsent(userId, k -> new ArrayList<>()).add(articleId);
@@ -33,16 +37,19 @@ public class ArticleCacheService {
     return userViewHistory.getOrDefault(userId, new ArrayList<>());
   }
 
-  // This method is supposed to clean up old cache entries but has a bug
-  @Scheduled(fixedRate = 300000) // Run every 5 minutes
+  @Scheduled(fixedRate = 300000)
   public void cleanupCache() {
-    // BUG: This cleanup method doesn't actually clean anything!
-    // It just logs the cache size but never removes old entries
     System.out.println("Cache cleanup running. Article cache size: " + articleCache.size());
     System.out.println("User view history size: " + userViewHistory.size());
 
-    // TODO: Implement actual cleanup logic
-    // The developer forgot to implement the cleanup, causing memory leak
+    articleCache.clear();
+    userViewHistory.clear();
+
+    System.out.println(
+        "Cache cleared. New sizes - Articles: "
+            + articleCache.size()
+            + ", Views: "
+            + userViewHistory.size());
   }
 
   public int getCacheSize() {
