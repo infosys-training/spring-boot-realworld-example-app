@@ -3,6 +3,7 @@ package io.spring.infrastructure.repository;
 import io.spring.core.article.Article;
 import io.spring.core.article.ArticleRepository;
 import io.spring.core.article.Tag;
+import io.spring.infrastructure.cache.ArticleCacheService;
 import io.spring.infrastructure.mybatis.mapper.ArticleMapper;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
@@ -11,9 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class MyBatisArticleRepository implements ArticleRepository {
   private ArticleMapper articleMapper;
+  private ArticleCacheService articleCacheService;
 
-  public MyBatisArticleRepository(ArticleMapper articleMapper) {
+  public MyBatisArticleRepository(
+      ArticleMapper articleMapper, ArticleCacheService articleCacheService) {
     this.articleMapper = articleMapper;
+    this.articleCacheService = articleCacheService;
   }
 
   @Override
@@ -23,6 +27,7 @@ public class MyBatisArticleRepository implements ArticleRepository {
       createNew(article);
     } else {
       articleMapper.update(article);
+      articleCacheService.invalidateArticle(article.getId());
     }
   }
 
