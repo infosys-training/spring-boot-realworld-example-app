@@ -10,12 +10,16 @@ import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultJwtService implements JwtService {
+  private static final Logger log = LoggerFactory.getLogger(DefaultJwtService.class);
+
   private final SecretKey signingKey;
   private final SignatureAlgorithm signatureAlgorithm;
   private int sessionTime;
@@ -26,6 +30,11 @@ public class DefaultJwtService implements JwtService {
     this.sessionTime = sessionTime;
     signatureAlgorithm = SignatureAlgorithm.HS512;
     this.signingKey = new SecretKeySpec(secret.getBytes(), signatureAlgorithm.getJcaName());
+
+    log.debug("DefaultJwtService initialized with:");
+    log.debug("  - JWT secret length: {} characters", secret.length());
+    log.debug("  - JWT session time: {} seconds ({} hours)", sessionTime, sessionTime / 3600.0);
+    log.debug("  - Signature algorithm: {}", signatureAlgorithm);
   }
 
   @Override
@@ -44,6 +53,7 @@ public class DefaultJwtService implements JwtService {
           Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
       return Optional.ofNullable(claimsJws.getBody().getSubject());
     } catch (Exception e) {
+      log.error("Failed to parse JWT token: {}", e.getMessage(), e);
       return Optional.empty();
     }
   }
