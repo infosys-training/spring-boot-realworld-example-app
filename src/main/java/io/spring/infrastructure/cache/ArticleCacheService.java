@@ -24,6 +24,10 @@ public class ArticleCacheService {
     return articleCache.get(articleId);
   }
 
+  public void invalidateArticle(String articleId) {
+    articleCache.remove(articleId);
+  }
+
   public void recordUserView(String userId, String articleId) {
     // Track user view history for analytics - this grows indefinitely
     userViewHistory.computeIfAbsent(userId, k -> new ArrayList<>()).add(articleId);
