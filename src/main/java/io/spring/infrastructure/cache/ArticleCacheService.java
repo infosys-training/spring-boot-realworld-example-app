@@ -1,6 +1,7 @@
 package io.spring.infrastructure.cache;
 
 import io.spring.application.data.ArticleData;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,38 +12,87 @@ import org.springframework.stereotype.Service;
 @Service
 public class ArticleCacheService {
 
-  // Cache that grows indefinitely - this will cause memory leak
-  private final Map<String, ArticleData> articleCache = new ConcurrentHashMap<>();
-  private final Map<String, List<String>> userViewHistory = new ConcurrentHashMap<>();
+  private static final long CACHE_EXPIRATION_MINUTES = 30;
+
+  private static class CachedArticle {
+    final ArticleData data;
+    final Instant timestamp;
+
+    CachedArticle(ArticleData data) {
+      this.data = data;
+      this.timestamp = Instant.now();
+    }
+  }
+
+  private static class ViewRecord {
+    final String articleId;
+    final Instant timestamp;
+
+    ViewRecord(String articleId) {
+      this.articleId = articleId;
+      this.timestamp = Instant.now();
+    }
+  }
+
+  private final Map<String, CachedArticle> articleCache = new ConcurrentHashMap<>();
+  private final Map<String, List<ViewRecord>> userViewHistory = new ConcurrentHashMap<>();
 
   public void cacheArticle(String articleId, ArticleData articleData) {
-    // Cache article data for performance
-    articleCache.put(articleId, articleData);
+    articleCache.put(articleId, new CachedArticle(articleData));
   }
 
   public ArticleData getCachedArticle(String articleId) {
-    return articleCache.get(articleId);
+    CachedArticle cached = articleCache.get(articleId);
+    return cached != null ? cached.data : null;
   }
 
   public void recordUserView(String userId, String articleId) {
-    // Track user view history for analytics - this grows indefinitely
-    userViewHistory.computeIfAbsent(userId, k -> new ArrayList<>()).add(articleId);
+    userViewHistory.computeIfAbsent(userId, k -> new ArrayList<>()).add(new ViewRecord(articleId));
   }
 
   public List<String> getUserViewHistory(String userId) {
-    return userViewHistory.getOrDefault(userId, new ArrayList<>());
+    List<ViewRecord> records = userViewHistory.getOrDefault(userId, new ArrayList<>());
+    List<String> articleIds = new ArrayList<>();
+    for (ViewRecord record : records) {
+      articleIds.add(record.articleId);
+    }
+    return articleIds;
   }
 
-  // This method is supposed to clean up old cache entries but has a bug
-  @Scheduled(fixedRate = 300000) // Run every 5 minutes
+  @Scheduled(fixedRate = 300000)
   public void cleanupCache() {
-    // BUG: This cleanup method doesn't actually clean anything!
-    // It just logs the cache size but never removes old entries
-    System.out.println("Cache cleanup running. Article cache size: " + articleCache.size());
-    System.out.println("User view history size: " + userViewHistory.size());
+    Instant expirationThreshold = Instant.now().minusSeconds(CACHE_EXPIRATION_MINUTES * 60);
 
-    // TODO: Implement actual cleanup logic
-    // The developer forgot to implement the cleanup, causing memory leak
+    int removedArticles = 0;
+    int removedViews = 0;
+
+    for (Map.Entry<String, CachedArticle> entry : articleCache.entrySet()) {
+      if (entry.getValue().timestamp.isBefore(expirationThreshold)) {
+        articleCache.remove(entry.getKey());
+        removedArticles++;
+      }
+    }
+
+    for (Map.Entry<String, List<ViewRecord>> entry : userViewHistory.entrySet()) {
+      List<ViewRecord> records = entry.getValue();
+      int originalSize = records.size();
+      records.removeIf(record -> record.timestamp.isBefore(expirationThreshold));
+      removedViews += originalSize - records.size();
+
+      if (records.isEmpty()) {
+        userViewHistory.remove(entry.getKey());
+      }
+    }
+
+    System.out.println(
+        "Cache cleanup completed. Removed "
+            + removedArticles
+            + " articles and "
+            + removedViews
+            + " view records. Article cache size: "
+            + articleCache.size()
+            + ", User view history size: "
+            + userViewHistory.size());
   }
 
   public int getCacheSize() {
