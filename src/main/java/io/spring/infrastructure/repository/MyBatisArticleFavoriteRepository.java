@@ -5,7 +5,9 @@ import io.spring.core.favorite.ArticleFavoriteRepository;
 import io.spring.infrastructure.mybatis.mapper.ArticleFavoriteMapper;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class MyBatisArticleFavoriteRepository implements ArticleFavoriteRepository {
@@ -17,19 +19,12 @@ public class MyBatisArticleFavoriteRepository implements ArticleFavoriteReposito
   }
 
   @Override
+  @Transactional
   public void save(ArticleFavorite articleFavorite) {
-    // Check if favorite already exists
-    ArticleFavorite existing =
-        mapper.find(articleFavorite.getArticleId(), articleFavorite.getUserId());
-    if (existing == null) {
-      // Small delay to simulate processing time - makes race condition more likely
-      try {
-        Thread.sleep(10);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-      // Insert the favorite
+    try {
       mapper.insert(articleFavorite);
+    } catch (DataAccessException e) {
+      if (e.getMessage() != null && e.getMessage().contains("constraint failed")) {}
     }
   }
 

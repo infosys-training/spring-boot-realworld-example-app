@@ -16,6 +16,7 @@ import io.spring.core.user.FollowRelation;
 import io.spring.core.user.User;
 import io.spring.core.user.UserRepository;
 import io.spring.infrastructure.DbTestBase;
+import io.spring.infrastructure.cache.ArticleCacheService;
 import io.spring.infrastructure.repository.MyBatisArticleFavoriteRepository;
 import io.spring.infrastructure.repository.MyBatisArticleRepository;
 import io.spring.infrastructure.repository.MyBatisUserRepository;
@@ -32,7 +33,8 @@ import org.springframework.context.annotation.Import;
   ArticleQueryService.class,
   MyBatisUserRepository.class,
   MyBatisArticleRepository.class,
-  MyBatisArticleFavoriteRepository.class
+  MyBatisArticleFavoriteRepository.class,
+  ArticleCacheService.class
 })
 public class ArticleQueryServiceTest extends DbTestBase {
   @Autowired private ArticleQueryService queryService;
@@ -42,6 +44,8 @@ public class ArticleQueryServiceTest extends DbTestBase {
   @Autowired private UserRepository userRepository;
 
   @Autowired private ArticleFavoriteRepository articleFavoriteRepository;
+
+  @Autowired private ArticleCacheService articleCacheService;
 
   private User user;
   private Article article;
@@ -226,5 +230,26 @@ public class ArticleQueryServiceTest extends DbTestBase {
     Assertions.assertEquals(anotherUserFeed.getCount(), 1);
     ArticleData articleData = anotherUserFeed.getArticleDatas().get(0);
     Assertions.assertTrue(articleData.getProfileData().isFollowing());
+  }
+
+  @Test
+  public void should_return_fresh_favorites_count_after_cache_invalidation() {
+    Optional<ArticleData> firstQuery = queryService.findById(article.getId(), user);
+    Assertions.assertTrue(firstQuery.isPresent());
+    Assertions.assertEquals(0, firstQuery.get().getFavoritesCount());
+
+    User anotherUser = new User("cached@test.com", "cached", "123", "", "");
+    userRepository.save(anotherUser);
+    articleFavoriteRepository.save(new ArticleFavorite(article.getId(), anotherUser.getId()));
+
+    articleCacheService.invalidateArticle(article.getId());
+
+    Optional<ArticleData> secondQuery = queryService.findById(article.getId(), user);
+    Assertions.assertTrue(secondQuery.isPresent());
+    Assertions.assertEquals(
+        1,
+        secondQuery.get().getFavoritesCount(),
+        "Cache invalidation should cause fresh data to be fetched");
+    Assertions.assertFalse(secondQuery.get().isFavorited(), "User hasn't favorited the article");
   }
 }

@@ -19,6 +19,7 @@ import io.spring.core.article.Tag;
 import io.spring.core.favorite.ArticleFavorite;
 import io.spring.core.favorite.ArticleFavoriteRepository;
 import io.spring.core.user.User;
+import io.spring.infrastructure.cache.ArticleCacheService;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +41,8 @@ public class ArticleFavoriteApiTest extends TestWithCurrentUser {
   @MockBean private ArticleRepository articleRepository;
 
   @MockBean private ArticleQueryService articleQueryService;
+
+  @MockBean private ArticleCacheService articleCacheService;
 
   private Article article;
 
@@ -84,6 +87,7 @@ public class ArticleFavoriteApiTest extends TestWithCurrentUser {
         .body("article.id", equalTo(article.getId()));
 
     verify(articleFavoriteRepository).save(any());
+    verify(articleCacheService).invalidateArticle(eq(article.getId()));
   }
 
   @Test
@@ -99,5 +103,6 @@ public class ArticleFavoriteApiTest extends TestWithCurrentUser {
         .statusCode(200)
         .body("article.id", equalTo(article.getId()));
     verify(articleFavoriteRepository).remove(new ArticleFavorite(article.getId(), user.getId()));
+    verify(articleCacheService).invalidateArticle(eq(article.getId()));
   }
 }
