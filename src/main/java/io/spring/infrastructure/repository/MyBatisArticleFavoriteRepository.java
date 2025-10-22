@@ -5,6 +5,7 @@ import io.spring.core.favorite.ArticleFavoriteRepository;
 import io.spring.infrastructure.mybatis.mapper.ArticleFavoriteMapper;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -18,18 +19,9 @@ public class MyBatisArticleFavoriteRepository implements ArticleFavoriteReposito
 
   @Override
   public void save(ArticleFavorite articleFavorite) {
-    // Check if favorite already exists
-    ArticleFavorite existing =
-        mapper.find(articleFavorite.getArticleId(), articleFavorite.getUserId());
-    if (existing == null) {
-      // Small delay to simulate processing time - makes race condition more likely
-      try {
-        Thread.sleep(10);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-      // Insert the favorite
+    try {
       mapper.insert(articleFavorite);
+    } catch (DuplicateKeyException e) {
     }
   }
 
