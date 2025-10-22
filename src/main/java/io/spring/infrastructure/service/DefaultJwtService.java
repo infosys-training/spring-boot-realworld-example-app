@@ -10,12 +10,15 @@ import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultJwtService implements JwtService {
+  private static final Logger logger = LoggerFactory.getLogger(DefaultJwtService.class);
   private final SecretKey signingKey;
   private final SignatureAlgorithm signatureAlgorithm;
   private int sessionTime;
@@ -26,6 +29,10 @@ public class DefaultJwtService implements JwtService {
     this.sessionTime = sessionTime;
     signatureAlgorithm = SignatureAlgorithm.HS512;
     this.signingKey = new SecretKeySpec(secret.getBytes(), signatureAlgorithm.getJcaName());
+    logger.info(
+        "JWT Service initialized - Secret key length: {} bytes, Session time: {} seconds",
+        secret.getBytes().length,
+        sessionTime);
   }
 
   @Override
@@ -44,6 +51,10 @@ public class DefaultJwtService implements JwtService {
           Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
       return Optional.ofNullable(claimsJws.getBody().getSubject());
     } catch (Exception e) {
+      logger.error(
+          "JWT validation failed - Exception type: {}, Message: {}",
+          e.getClass().getSimpleName(),
+          e.getMessage());
       return Optional.empty();
     }
   }
