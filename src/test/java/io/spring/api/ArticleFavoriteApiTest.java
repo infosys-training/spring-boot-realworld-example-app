@@ -19,6 +19,7 @@ import io.spring.core.article.Tag;
 import io.spring.core.favorite.ArticleFavorite;
 import io.spring.core.favorite.ArticleFavoriteRepository;
 import io.spring.core.user.User;
+import io.spring.infrastructure.cache.ArticleCacheService;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +41,8 @@ public class ArticleFavoriteApiTest extends TestWithCurrentUser {
   @MockBean private ArticleRepository articleRepository;
 
   @MockBean private ArticleQueryService articleQueryService;
+
+  @MockBean private ArticleCacheService articleCacheService;
 
   private Article article;
 
