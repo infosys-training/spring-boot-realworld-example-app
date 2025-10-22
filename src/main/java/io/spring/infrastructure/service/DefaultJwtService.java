@@ -6,16 +6,20 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.spring.core.service.JwtService;
 import io.spring.core.user.User;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultJwtService implements JwtService {
+  private static final Logger logger = LoggerFactory.getLogger(DefaultJwtService.class);
   private final SecretKey signingKey;
   private final SignatureAlgorithm signatureAlgorithm;
   private int sessionTime;
@@ -25,7 +29,8 @@ public class DefaultJwtService implements JwtService {
       @Value("${jwt.secret}") String secret, @Value("${jwt.sessionTime}") int sessionTime) {
     this.sessionTime = sessionTime;
     signatureAlgorithm = SignatureAlgorithm.HS512;
-    this.signingKey = new SecretKeySpec(secret.getBytes(), signatureAlgorithm.getJcaName());
+    this.signingKey =
+        new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), signatureAlgorithm.getJcaName());
   }
 
   @Override
@@ -44,6 +49,7 @@ public class DefaultJwtService implements JwtService {
           Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
       return Optional.ofNullable(claimsJws.getBody().getSubject());
     } catch (Exception e) {
+      logger.debug("Failed to parse JWT token: {}", e.getMessage());
       return Optional.empty();
     }
   }
