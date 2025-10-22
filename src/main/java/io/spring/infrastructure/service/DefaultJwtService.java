@@ -10,10 +10,12 @@ import java.util.Date;
 import java.util.Optional;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class DefaultJwtService implements JwtService {
   private final SecretKey signingKey;
@@ -26,6 +28,7 @@ public class DefaultJwtService implements JwtService {
     this.sessionTime = sessionTime;
     signatureAlgorithm = SignatureAlgorithm.HS512;
     this.signingKey = new SecretKeySpec(secret.getBytes(), signatureAlgorithm.getJcaName());
+    log.info("JWT secret length: {}", secret.length());
   }
 
   @Override
@@ -44,6 +47,7 @@ public class DefaultJwtService implements JwtService {
           Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
       return Optional.ofNullable(claimsJws.getBody().getSubject());
     } catch (Exception e) {
+      log.error("JWT validation failed", e);
       return Optional.empty();
     }
   }
