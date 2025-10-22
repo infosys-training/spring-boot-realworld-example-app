@@ -52,4 +52,8 @@ public class ArticleCacheService {
   public int getViewHistorySize() {
     return userViewHistory.size();
   }
+
+  public void invalidateArticle(String articleId) {
+    articleCache.remove(articleId);
+  }
 }
