@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/articles/{slug}/comments")
+@RequestMapping(path = "/api/articles/{slug}/comments")
 @AllArgsConstructor
 public class CommentsApi {
   private ArticleRepository articleRepository;
