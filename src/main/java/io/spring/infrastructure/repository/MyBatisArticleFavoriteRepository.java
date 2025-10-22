@@ -5,7 +5,7 @@ import io.spring.core.favorite.ArticleFavoriteRepository;
 import io.spring.infrastructure.mybatis.mapper.ArticleFavoriteMapper;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +23,8 @@ public class MyBatisArticleFavoriteRepository implements ArticleFavoriteReposito
   public void save(ArticleFavorite articleFavorite) {
     try {
       mapper.insert(articleFavorite);
-    } catch (DuplicateKeyException e) {
+    } catch (DataAccessException e) {
+      if (e.getMessage() != null && e.getMessage().contains("constraint failed")) {}
     }
   }
 

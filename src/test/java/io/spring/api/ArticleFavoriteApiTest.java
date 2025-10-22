@@ -87,6 +87,7 @@ public class ArticleFavoriteApiTest extends TestWithCurrentUser {
         .body("article.id", equalTo(article.getId()));
 
     verify(articleFavoriteRepository).save(any());
+    verify(articleCacheService).invalidateArticle(eq(article.getId()));
   }
 
   @Test
@@ -102,5 +103,6 @@ public class ArticleFavoriteApiTest extends TestWithCurrentUser {
         .statusCode(200)
         .body("article.id", equalTo(article.getId()));
     verify(articleFavoriteRepository).remove(new ArticleFavorite(article.getId(), user.getId()));
+    verify(articleCacheService).invalidateArticle(eq(article.getId()));
   }
 }
