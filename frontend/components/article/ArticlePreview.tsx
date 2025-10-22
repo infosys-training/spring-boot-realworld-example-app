@@ -30,6 +30,9 @@ const ArticlePreview = ({ article }) => {
       return;
     }
 
+    const originalFavorited = preview.favorited;
+    const originalCount = preview.favoritesCount;
+
     setPreview({
       ...preview,
       favorited: !preview.favorited,
@@ -39,7 +42,7 @@ const ArticlePreview = ({ article }) => {
     });
 
     try {
-      if (preview.favorited) {
+      if (originalFavorited) {
         await axios.delete(`${SERVER_BASE_URL}/articles/${slug}/favorite`, {
           headers: {
             Authorization: `Token ${currentUser?.token}`,
@@ -59,10 +62,8 @@ const ArticlePreview = ({ article }) => {
     } catch (error) {
       setPreview({
         ...preview,
-        favorited: !preview.favorited,
-        favoritesCount: preview.favorited
-          ? preview.favoritesCount - 1
-          : preview.favoritesCount + 1,
+        favorited: originalFavorited,
+        favoritesCount: originalCount,
       });
     }
   };
