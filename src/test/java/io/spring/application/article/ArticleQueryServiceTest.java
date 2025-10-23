@@ -16,6 +16,7 @@ import io.spring.core.user.FollowRelation;
 import io.spring.core.user.User;
 import io.spring.core.user.UserRepository;
 import io.spring.infrastructure.DbTestBase;
+import io.spring.infrastructure.cache.ArticleCacheService;
 import io.spring.infrastructure.repository.MyBatisArticleFavoriteRepository;
 import io.spring.infrastructure.repository.MyBatisArticleRepository;
 import io.spring.infrastructure.repository.MyBatisUserRepository;
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Import;
 
 @Import({
   ArticleQueryService.class,
+  ArticleCacheService.class,
   MyBatisUserRepository.class,
   MyBatisArticleRepository.class,
   MyBatisArticleFavoriteRepository.class
@@ -226,5 +228,20 @@ public class ArticleQueryServiceTest extends DbTestBase {
     Assertions.assertEquals(anotherUserFeed.getCount(), 1);
     ArticleData articleData = anotherUserFeed.getArticleDatas().get(0);
     Assertions.assertTrue(articleData.getProfileData().isFollowing());
+  }
+
+  @Test
+  public void should_list_articles_without_tags() {
+    Article articleWithoutTags =
+        new Article("article without tags", "desc", "body", Arrays.asList(), user.getId());
+    articleRepository.save(articleWithoutTags);
+
+    ArticleDataList recentArticles =
+        queryService.findRecentArticles(null, null, null, new Page(), user);
+    Assertions.assertEquals(recentArticles.getCount(), 2);
+    Assertions.assertEquals(recentArticles.getArticleDatas().size(), 2);
+    Assertions.assertTrue(
+        recentArticles.getArticleDatas().stream()
+            .anyMatch(a -> a.getId().equals(articleWithoutTags.getId())));
   }
 }

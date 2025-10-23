@@ -18,11 +18,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ArticleQueryService {
   private ArticleReadService articleReadService;
   private UserRelationshipQueryService userRelationshipQueryService;
@@ -114,11 +116,14 @@ public class ArticleQueryService {
   public ArticleDataList findRecentArticles(
       String tag, String author, String favoritedBy, Page page, User currentUser) {
     List<String> articleIds = articleReadService.queryArticles(tag, author, favoritedBy, page);
+    log.debug("queryArticles returned {} article IDs: {}", articleIds.size(), articleIds);
     int articleCount = articleReadService.countArticle(tag, author, favoritedBy);
+    log.debug("countArticle returned total count: {}", articleCount);
     if (articleIds.size() == 0) {
       return new ArticleDataList(new ArrayList<>(), articleCount);
     } else {
       List<ArticleData> articles = articleReadService.findArticles(articleIds);
+      log.debug("findArticles returned {} articles", articles.size());
       fillExtraInfo(articles, currentUser);
       return new ArticleDataList(articles, articleCount);
     }
