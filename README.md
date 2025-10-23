@@ -36,7 +36,29 @@ And the code is organized as this:
 
 Integration with Spring Security and add other filter for jwt token process.
 
-The secret key is stored in `application.properties`.
+## JWT Configuration
+
+The application uses JWT tokens for authentication. The JWT secret key should be configured via environment variables for security:
+
+- **JWT_SECRET**: Secret key for signing JWT tokens (minimum 64 characters recommended for HS512)
+- **JWT_SESSION_TIME**: Token expiration time in seconds (default: 86400 = 24 hours)
+
+### Setting Environment Variables
+
+**For development:**
+1. Copy `.env.example` to create your own `.env` file (never commit this!)
+2. Set your own JWT secret:
+   ```bash
+   export JWT_SECRET="your-secret-key-here-minimum-64-characters"
+   export JWT_SESSION_TIME=86400
+   ```
+
+**For production:**
+- Set environment variables through your deployment platform
+- Never use the default fallback values in production
+- Use a cryptographically secure random string for JWT_SECRET
+
+**Note**: The application will use default values from `application.properties` if environment variables are not set, which is acceptable for local development only.
 
 # Database
 
@@ -61,6 +83,17 @@ The application includes seed data with sample users, articles, tags, comments, 
 - 4 follow relationships between users
 
 # Getting started
+
+## Environment Setup (Optional for Development)
+
+For production deployments, you should configure JWT secrets via environment variables:
+
+```bash
+export JWT_SECRET="your-secure-secret-key-at-least-64-characters-long"
+export JWT_SESSION_TIME=86400
+```
+
+See the Security section above for more details. For local development, the application will use default values.
 
 ## Backend (Spring Boot)
 
