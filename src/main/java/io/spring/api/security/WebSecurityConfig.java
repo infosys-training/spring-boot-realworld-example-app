@@ -2,6 +2,7 @@ package io.spring.api.security;
 
 import static java.util.Arrays.asList;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+  private final KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter;
+
+  public WebSecurityConfig(
+      @Autowired(required = false)
+          KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter) {
+    this.keycloakJwtAuthenticationConverter = keycloakJwtAuthenticationConverter;
+  }
 
   @Bean
   public JwtTokenFilter jwtTokenFilter() {
@@ -62,6 +71,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .authenticated();
 
     http.addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+
+    if (keycloakJwtAuthenticationConverter != null) {
+      http.oauth2ResourceServer(
+          oauth2 ->
+              oauth2.jwt(
+                  jwt -> jwt.jwtAuthenticationConverter(keycloakJwtAuthenticationConverter)));
+    }
   }
 
   @Bean
