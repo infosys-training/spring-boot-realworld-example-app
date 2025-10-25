@@ -5,6 +5,7 @@ import CustomLink from "../common/CustomLink";
 import CustomImage from "../common/CustomImage";
 import Maybe from "../common/Maybe";
 import DeleteButton from "./DeleteButton";
+import ReactionButtons from "./ReactionButtons";
 import checkLogin from "../../lib/utils/checkLogin";
 import storage from "../../lib/utils/storage";
 
@@ -42,6 +43,7 @@ const Comment = ({ comment }) => {
         <span className="date-posted">
           {new Date(comment.createdAt).toDateString()}
         </span>
+        <ReactionButtons comment={comment} />
         <Maybe test={canModify}>
           <DeleteButton commentId={comment.id} />
         </Maybe>

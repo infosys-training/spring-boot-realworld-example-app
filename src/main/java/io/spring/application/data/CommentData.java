@@ -18,6 +18,9 @@ public class CommentData implements Node {
   @JsonIgnore private String articleId;
   private DateTime createdAt;
   private DateTime updatedAt;
+  private int likesCount;
+  private int dislikesCount;
+  private String currentUserReaction;
 
   @JsonProperty("author")
   private ProfileData profileData;
