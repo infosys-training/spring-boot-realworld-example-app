@@ -56,14 +56,16 @@ public class UserMutation {
   public DataFetcherResult<UserPayload> login(
       @InputArgument("password") String password, @InputArgument("email") String email) {
     Optional<User> optional = userRepository.findByEmail(email);
-    if (optional.isPresent() && encryptService.matches(password, optional.get().getPassword())) {
-      return DataFetcherResult.<UserPayload>newResult()
-          .data(UserPayload.newBuilder().build())
-          .localContext(optional.get())
-          .build();
-    } else {
-      throw new InvalidAuthenticationException();
+    if (optional.isPresent()) {
+      User user = optional.get();
+      if (encryptService.matches(password, user.getPassword())) {
+        return DataFetcherResult.<UserPayload>newResult()
+            .data(UserPayload.newBuilder().build())
+            .localContext(user)
+            .build();
+      }
     }
+    throw new InvalidAuthenticationException();
   }
 
   @DgsData(parentType = MUTATION.TYPE_NAME, field = MUTATION.UpdateUser)
