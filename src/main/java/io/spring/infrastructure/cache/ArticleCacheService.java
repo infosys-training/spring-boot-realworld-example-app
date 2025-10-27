@@ -2,6 +2,8 @@ package io.spring.infrastructure.cache;
 
 import io.spring.application.data.ArticleData;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,12 +13,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class ArticleCacheService {
 
-  // Cache that grows indefinitely - this will cause memory leak
-  private final Map<String, ArticleData> articleCache = new ConcurrentHashMap<>();
+  private static final int MAX_CACHE_SIZE = 1000;
+  private static final int MAX_HISTORY_PER_USER = 100;
+
+  private final Map<String, ArticleData> articleCache =
+      Collections.synchronizedMap(
+          new LinkedHashMap<String, ArticleData>(MAX_CACHE_SIZE + 1, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, ArticleData> eldest) {
+              return size() > MAX_CACHE_SIZE;
+            }
+          });
+
   private final Map<String, List<String>> userViewHistory = new ConcurrentHashMap<>();
 
   public void cacheArticle(String articleId, ArticleData articleData) {
-    // Cache article data for performance
     articleCache.put(articleId, articleData);
   }
 
@@ -25,7 +36,6 @@ public class ArticleCacheService {
   }
 
   public void recordUserView(String userId, String articleId) {
-    // Track user view history for analytics - this grows indefinitely
     userViewHistory.computeIfAbsent(userId, k -> new ArrayList<>()).add(articleId);
   }
 
@@ -33,16 +43,11 @@ public class ArticleCacheService {
     return userViewHistory.getOrDefault(userId, new ArrayList<>());
   }
 
-  // This method is supposed to clean up old cache entries but has a bug
-  @Scheduled(fixedRate = 300000) // Run every 5 minutes
+  @Scheduled(fixedRate = 300000)
   public void cleanupCache() {
-    // BUG: This cleanup method doesn't actually clean anything!
-    // It just logs the cache size but never removes old entries
-    System.out.println("Cache cleanup running. Article cache size: " + articleCache.size());
-    System.out.println("User view history size: " + userViewHistory.size());
-
-    // TODO: Implement actual cleanup logic
-    // The developer forgot to implement the cleanup, causing memory leak
+    userViewHistory.entrySet().removeIf(entry -> entry.getValue().size() > MAX_HISTORY_PER_USER);
+    System.out.println("Cache cleanup completed. Article cache size: " + articleCache.size());
+    System.out.println("User view history entries: " + userViewHistory.size());
   }
 
   public int getCacheSize() {
