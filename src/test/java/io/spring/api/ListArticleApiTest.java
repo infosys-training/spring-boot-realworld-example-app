@@ -13,6 +13,7 @@ import io.spring.application.ArticleQueryService;
 import io.spring.application.Page;
 import io.spring.application.article.ArticleCommandService;
 import io.spring.application.data.ArticleDataList;
+import io.spring.application.export.ArticleCsvExportService;
 import io.spring.core.article.ArticleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ public class ListArticleApiTest extends TestWithCurrentUser {
   @MockBean private ArticleQueryService articleQueryService;
 
   @MockBean private ArticleCommandService articleCommandService;
+
+  @MockBean private ArticleCsvExportService articleCsvExportService;
 
   @Autowired private MockMvc mvc;
 
