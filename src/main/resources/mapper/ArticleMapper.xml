@@ -2,12 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.spring.infrastructure.mybatis.mapper.ArticleMapper">
     <insert id="insert">
-        insert into articles(id, slug, title, description, body, user_id, created_at, updated_at)
+        insert into articles(id, slug, title, description, summary, body, user_id, created_at, updated_at)
         values(
           #{article.id},
           #{article.slug},
           #{article.title},
           #{article.description},
+          #{article.summary},
           #{article.body},
           #{article.userId},
           #{article.createdAt},
@@ -25,6 +26,7 @@
               <if test="article.title != ''">title = #{article.title},</if>
               <if test="article.title != ''">slug = #{article.slug},</if>
               <if test="article.description != ''">description = #{article.description},</if>
+              <if test="article.summary != ''">summary = #{article.summary},</if>
               <if test="article.body != ''">body = #{article.body}</if>
           </set>
         where id = #{article.id}
@@ -38,6 +40,7 @@
         A.slug articleSlug,
         A.title articleTitle,
         A.description articleDescription,
+        A.summary articleSummary,
         A.body articleBody,
         A.user_id articleUserId,
         A.created_at articleCreatedAt,
@@ -69,6 +72,7 @@
         <result column="articleTitle" property="title"/>
         <result column="articleSlug" property="slug"/>
         <result column="articleDescription" property="description"/>
+        <result column="articleSummary" property="summary"/>
         <result column="articleBody" property="body"/>
         <result column="articleCreatedAt" property="createdAt"/>
         <result column="articleUpdatedAt" property="updatedAt"/>

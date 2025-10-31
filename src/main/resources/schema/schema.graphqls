@@ -50,6 +50,7 @@ type Article {
     comments(first: Int, after: String, last: Int, before: String): CommentsConnection
     createdAt: String!
     description: String!
+    summary: String!
     favorited: Boolean!
     favoritesCount: Int!
     slug: String!
@@ -135,12 +136,14 @@ type ErrorItem {
 input UpdateArticleInput {
     body: String
     description: String
+    summary: String
     title: String
 }
 
 input CreateArticleInput {
     body: String!
     description: String!
+    summary: String!
     tagList: [String]
     title: String!
 }
