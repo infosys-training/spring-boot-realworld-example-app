@@ -12,6 +12,7 @@ const PublishArticleEditor = () => {
   const initialState = {
     title: "",
     description: "",
+    summary: "",
     body: "",
     tagList: [],
   };
@@ -25,6 +26,8 @@ const PublishArticleEditor = () => {
     dispatch({ type: "SET_TITLE", text: e.target.value });
   const handleDescription = (e) =>
     dispatch({ type: "SET_DESCRIPTION", text: e.target.value });
+  const handleSummary = (e) =>
+    dispatch({ type: "SET_SUMMARY", text: e.target.value });
   const handleBody = (e) =>
     dispatch({ type: "SET_BODY", text: e.target.value });
   const addTag = (tag) => dispatch({ type: "ADD_TAG", tag: tag });
@@ -73,6 +76,16 @@ const PublishArticleEditor = () => {
                     placeholder="What's this article about?"
                     value={posting.description}
                     onChange={handleDescription}
+                  />
+                </fieldset>
+
+                <fieldset className="form-group">
+                  <input
+                    className="form-control"
+                    type="text"
+                    placeholder="Article summary"
+                    value={posting.summary}
+                    onChange={handleSummary}
                   />
                 </fieldset>
 

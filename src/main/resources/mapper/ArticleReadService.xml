@@ -13,6 +13,7 @@
         A.slug articleSlug,
         A.title articleTitle,
         A.description articleDescription,
+        A.summary articleSummary,
         A.body articleBody,
         A.created_at articleCreatedAt,
         A.updated_at articleUpdatedAt,

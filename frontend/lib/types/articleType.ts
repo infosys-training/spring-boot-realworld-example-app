@@ -11,6 +11,7 @@ export type ArticleType = {
   createdAt: number;
   author: Author;
   description: string;
+  summary: string;
   title: string;
   body: string;
   slug: string;
