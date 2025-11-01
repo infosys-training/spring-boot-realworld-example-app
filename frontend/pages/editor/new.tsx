@@ -13,6 +13,7 @@ const PublishArticleEditor = () => {
     title: "",
     description: "",
     body: "",
+    summary: "",
     tagList: [],
   };
 
@@ -27,8 +28,25 @@ const PublishArticleEditor = () => {
     dispatch({ type: "SET_DESCRIPTION", text: e.target.value });
   const handleBody = (e) =>
     dispatch({ type: "SET_BODY", text: e.target.value });
+  const handleSummary = (e) =>
+    dispatch({ type: "SET_SUMMARY", text: e.target.value });
   const addTag = (tag) => dispatch({ type: "ADD_TAG", tag: tag });
   const removeTag = (tag) => dispatch({ type: "REMOVE_TAG", tag: tag });
+
+  const handleGenerateSummary = async () => {
+    if (!posting.body) return;
+    setLoading(true);
+    try {
+      const summary = await ArticleAPI.generateSummary(
+        { body: posting.body },
+        currentUser?.token
+      );
+      dispatch({ type: "SET_SUMMARY", text: summary });
+    } catch (error) {
+      console.error("Failed to generate summary:", error);
+    }
+    setLoading(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,6 +102,24 @@ const PublishArticleEditor = () => {
                     value={posting.body}
                     onChange={handleBody}
                   />
+                </fieldset>
+
+                <fieldset className="form-group">
+                  <input
+                    className="form-control"
+                    type="text"
+                    placeholder="Article Summary"
+                    value={posting.summary}
+                    onChange={handleSummary}
+                  />
+                  <button
+                    className="btn btn-sm btn-outline-secondary mt-2"
+                    type="button"
+                    disabled={isLoading || !posting.body}
+                    onClick={handleGenerateSummary}
+                  >
+                    Generate Summary
+                  </button>
                 </fieldset>
 
                 <TagInput

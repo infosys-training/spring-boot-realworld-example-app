@@ -25,6 +25,11 @@ const editorReducer = (state, action) => {
         ...state,
         tagList: state.tagList.filter(tag => tag !== action.tag)
       };
+    case "SET_SUMMARY":
+      return {
+        ...state,
+        summary: action.text
+      };
     default:
       throw new Error("Unhandled action");
   }

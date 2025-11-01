@@ -3,9 +3,11 @@ package io.spring.api;
 import io.spring.application.ArticleQueryService;
 import io.spring.application.Page;
 import io.spring.application.article.ArticleCommandService;
+import io.spring.application.article.GenerateSummaryParam;
 import io.spring.application.article.NewArticleParam;
 import io.spring.core.article.Article;
 import io.spring.core.user.User;
+import java.util.Arrays;
 import java.util.HashMap;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -33,6 +35,19 @@ public class ArticlesApi {
         new HashMap<String, Object>() {
           {
             put("article", articleQueryService.findById(article.getId(), user).get());
+          }
+        });
+  }
+
+  @PostMapping(path = "/generate-summary")
+  public ResponseEntity generateSummary(@Valid @RequestBody GenerateSummaryParam param) {
+    String body = param.getBody();
+    String[] words = body.split("\\s+");
+    String summary = String.join(" ", Arrays.copyOfRange(words, 0, Math.min(15, words.length)));
+    return ResponseEntity.ok(
+        new HashMap<String, String>() {
+          {
+            put("summary", summary);
           }
         });
   }
