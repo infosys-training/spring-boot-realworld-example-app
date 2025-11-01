@@ -131,6 +131,7 @@ echo ""
 # Start frontend
 print_info "Starting frontend (Next.js) on port 3000..."
 cd frontend
+unset NODE_OPTIONS
 npm run dev > ../frontend.log 2>&1 &
 FRONTEND_PID=$!
 cd ..
