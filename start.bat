@@ -77,7 +77,7 @@ echo.
 
 REM Start frontend (important-comment)
 echo [INFO] Starting frontend (Next.js) on port 3000...
-start "Next.js Frontend" cmd /c "cd frontend && set NODE_OPTIONS= && npm run dev"
+start "Next.js Frontend" cmd /c "cd frontend && npx next dev"
 echo [INFO] Frontend starting in separate window...
 echo.
 
