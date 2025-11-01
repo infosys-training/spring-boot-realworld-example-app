@@ -21,6 +21,7 @@ public class Article {
   private String title;
   private String description;
   private String body;
+  private String summary;
   private List<Tag> tags;
   private DateTime createdAt;
   private DateTime updatedAt;
@@ -34,6 +35,27 @@ public class Article {
       String title,
       String description,
       String body,
+      String summary,
+      List<String> tagList,
+      String userId) {
+    this(title, description, body, summary, tagList, userId, new DateTime());
+  }
+
+  public Article(
+      String title,
+      String description,
+      String body,
+      List<String> tagList,
+      String userId,
+      DateTime createdAt) {
+    this(title, description, body, null, tagList, userId, createdAt);
+  }
+
+  public Article(
+      String title,
+      String description,
+      String body,
+      String summary,
       List<String> tagList,
       String userId,
       DateTime createdAt) {
@@ -42,6 +64,7 @@ public class Article {
     this.title = title;
     this.description = description;
     this.body = body;
+    this.summary = summary;
     this.tags = new HashSet<>(tagList).stream().map(Tag::new).collect(toList());
     this.userId = userId;
     this.createdAt = createdAt;
@@ -49,6 +72,10 @@ public class Article {
   }
 
   public void update(String title, String description, String body) {
+    update(title, description, body, null);
+  }
+
+  public void update(String title, String description, String body, String summary) {
     if (!Util.isEmpty(title)) {
       this.title = title;
       this.slug = toSlug(title);
@@ -60,6 +87,10 @@ public class Article {
     }
     if (!Util.isEmpty(body)) {
       this.body = body;
+      this.updatedAt = new DateTime();
+    }
+    if (!Util.isEmpty(summary)) {
+      this.summary = summary;
       this.updatedAt = new DateTime();
     }
   }
