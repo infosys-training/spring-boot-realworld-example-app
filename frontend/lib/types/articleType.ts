@@ -13,6 +13,7 @@ export type ArticleType = {
   description: string;
   title: string;
   body: string;
+  summary?: string;
   slug: string;
   updatedAt: number;
   favoritesCount: number;

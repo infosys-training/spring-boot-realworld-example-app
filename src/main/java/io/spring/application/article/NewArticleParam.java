@@ -25,4 +25,6 @@ public class NewArticleParam {
   private String body;
 
   private List<String> tagList;
+
+  private String summary;
 }
