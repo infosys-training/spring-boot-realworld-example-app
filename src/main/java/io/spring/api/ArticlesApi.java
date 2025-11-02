@@ -7,8 +7,11 @@ import io.spring.application.article.NewArticleParam;
 import io.spring.core.article.Article;
 import io.spring.core.user.User;
 import java.util.HashMap;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +27,35 @@ import org.springframework.web.bind.annotation.RestController;
 public class ArticlesApi {
   private ArticleCommandService articleCommandService;
   private ArticleQueryService articleQueryService;
+
+  @PostMapping(path = "/generate-summary")
+  public ResponseEntity generateSummary(@RequestBody GenerateSummaryParam params) {
+    String body = params.getBody();
+    final String summary;
+    if (body != null && !body.isEmpty()) {
+      String[] words = body.split("\\s+");
+      int wordCount = Math.min(15, words.length);
+      summary = String.join(" ", java.util.Arrays.copyOfRange(words, 0, wordCount));
+    } else {
+      summary = "";
+    }
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("summary", summary);
+          }
+        });
+  }
+
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class GenerateSummaryParam {
+    private String title;
+    private String description;
+    private String body;
+    private List<String> tagList;
+  }
 
   @PostMapping
   public ResponseEntity createArticle(

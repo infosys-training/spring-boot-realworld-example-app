@@ -21,6 +21,7 @@
         <result column="articleTitle" property="title"/>
         <result column="articleDescription" property="description"/>
         <result column="articleBody" property="body"/>
+        <result column="articleSummary" property="summary"/>
         <result column="articleCreatedAt" property="createdAt"/>
         <result column="articleUpdatedAt" property="updatedAt"/>
         <association property="profileData" resultMap="transfer.data.profileData"/>

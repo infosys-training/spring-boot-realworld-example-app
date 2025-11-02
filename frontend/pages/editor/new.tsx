@@ -13,6 +13,7 @@ const PublishArticleEditor = () => {
     title: "",
     description: "",
     body: "",
+    summary: "",
     tagList: [],
   };
 
@@ -27,6 +28,17 @@ const PublishArticleEditor = () => {
     dispatch({ type: "SET_DESCRIPTION", text: e.target.value });
   const handleBody = (e) =>
     dispatch({ type: "SET_BODY", text: e.target.value });
+  const handleSummary = (e) =>
+    dispatch({ type: "SET_SUMMARY", text: e.target.value });
+  const handleGenerateSummary = async () => {
+    const { data, status } = await ArticleAPI.generateSummary(
+      posting,
+      currentUser?.token
+    );
+    if (status === 200 && data.summary) {
+      dispatch({ type: "SET_SUMMARY", text: data.summary });
+    }
+  };
   const addTag = (tag) => dispatch({ type: "ADD_TAG", tag: tag });
   const removeTag = (tag) => dispatch({ type: "REMOVE_TAG", tag: tag });
 
@@ -83,6 +95,27 @@ const PublishArticleEditor = () => {
                     placeholder="Write your article (in markdown)"
                     value={posting.body}
                     onChange={handleBody}
+                  />
+                </fieldset>
+
+                <fieldset className="form-group">
+                  <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+                    <label style={{ marginBottom: 0, marginRight: "auto" }}>Article Summary</label>
+                    <button
+                      className="btn btn-sm btn-outline-primary"
+                      type="button"
+                      onClick={handleGenerateSummary}
+                      disabled={isLoading}
+                    >
+                      Generate Summary
+                    </button>
+                  </div>
+                  <textarea
+                    className="form-control"
+                    rows={3}
+                    placeholder="Article summary (or click Generate Summary)"
+                    value={posting.summary}
+                    onChange={handleSummary}
                   />
                 </fieldset>
 
