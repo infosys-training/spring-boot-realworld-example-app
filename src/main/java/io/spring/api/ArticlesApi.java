@@ -54,6 +54,7 @@ public class ArticlesApi {
     private String title;
     private String description;
     private String body;
+    private String summary;
     private List<String> tagList;
   }
 
