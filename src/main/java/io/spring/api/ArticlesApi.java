@@ -29,7 +29,8 @@ public class ArticlesApi {
   private ArticleQueryService articleQueryService;
 
   @PostMapping(path = "/generate-summary")
-  public ResponseEntity generateSummary(@RequestBody GenerateSummaryParam params) {
+  public ResponseEntity generateSummary(
+      @RequestBody GenerateSummaryParam params, @AuthenticationPrincipal User currentUser) {
     String body = params.getBody();
     final String summary;
     if (body != null && !body.isEmpty()) {
