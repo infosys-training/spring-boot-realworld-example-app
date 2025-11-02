@@ -37,6 +37,26 @@ public class ArticlesApi {
         });
   }
 
+  @PostMapping(path = "/generate-summary")
+  public ResponseEntity generateSummary(
+      @Valid @RequestBody NewArticleParam newArticleParam, @AuthenticationPrincipal User user) {
+    String body = newArticleParam.getBody();
+    final String summary;
+    if (body != null && !body.trim().isEmpty()) {
+      String[] words = body.trim().split("\\s+");
+      int wordCount = Math.min(words.length, 15);
+      summary = String.join(" ", java.util.Arrays.copyOfRange(words, 0, wordCount));
+    } else {
+      summary = "";
+    }
+    return ResponseEntity.ok(
+        new HashMap<String, Object>() {
+          {
+            put("summary", summary);
+          }
+        });
+  }
+
   @GetMapping(path = "feed")
   public ResponseEntity getFeed(
       @RequestParam(value = "offset", defaultValue = "0") int offset,

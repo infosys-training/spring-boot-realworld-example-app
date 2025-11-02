@@ -14,6 +14,7 @@ const PublishArticleEditor = () => {
     description: "",
     body: "",
     tagList: [],
+    summary: "",
   };
 
   const [isLoading, setLoading] = React.useState(false);
@@ -27,8 +28,17 @@ const PublishArticleEditor = () => {
     dispatch({ type: "SET_DESCRIPTION", text: e.target.value });
   const handleBody = (e) =>
     dispatch({ type: "SET_BODY", text: e.target.value });
+  const handleSummary = (e) =>
+    dispatch({ type: "SET_SUMMARY", text: e.target.value });
   const addTag = (tag) => dispatch({ type: "ADD_TAG", tag: tag });
   const removeTag = (tag) => dispatch({ type: "REMOVE_TAG", tag: tag });
+
+  const handleGenerateSummary = async () => {
+    const { data } = await ArticleAPI.generateSummary(posting, currentUser?.token);
+    if (data && data.summary) {
+      dispatch({ type: "SET_SUMMARY", text: data.summary });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,6 +94,24 @@ const PublishArticleEditor = () => {
                     value={posting.body}
                     onChange={handleBody}
                   />
+                </fieldset>
+
+                <fieldset className="form-group">
+                  <textarea
+                    className="form-control"
+                    rows={3}
+                    placeholder="Article Summary"
+                    value={posting.summary}
+                    onChange={handleSummary}
+                  />
+                  <button
+                    className="btn btn-sm btn-outline-secondary mt-2"
+                    type="button"
+                    onClick={handleGenerateSummary}
+                    disabled={!posting.body}
+                  >
+                    Generate Summary
+                  </button>
                 </fieldset>
 
                 <TagInput

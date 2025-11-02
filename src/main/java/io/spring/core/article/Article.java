@@ -21,13 +21,19 @@ public class Article {
   private String title;
   private String description;
   private String body;
+  private String summary;
   private List<Tag> tags;
   private DateTime createdAt;
   private DateTime updatedAt;
 
   public Article(
-      String title, String description, String body, List<String> tagList, String userId) {
-    this(title, description, body, tagList, userId, new DateTime());
+      String title,
+      String description,
+      String body,
+      List<String> tagList,
+      String userId,
+      String summary) {
+    this(title, description, body, tagList, userId, summary, new DateTime());
   }
 
   public Article(
@@ -36,12 +42,14 @@ public class Article {
       String body,
       List<String> tagList,
       String userId,
+      String summary,
       DateTime createdAt) {
     this.id = UUID.randomUUID().toString();
     this.slug = toSlug(title);
     this.title = title;
     this.description = description;
     this.body = body;
+    this.summary = summary;
     this.tags = new HashSet<>(tagList).stream().map(Tag::new).collect(toList());
     this.userId = userId;
     this.createdAt = createdAt;
