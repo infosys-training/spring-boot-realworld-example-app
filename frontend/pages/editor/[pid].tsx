@@ -16,6 +16,7 @@ const UpdateArticleEditor = ({ article: initialArticle }) => {
     description: initialArticle.description,
     body: initialArticle.body,
     tagList: initialArticle.tagList,
+    summary: initialArticle.summary || "",
   };
 
   const [isLoading, setLoading] = React.useState(false);
@@ -35,6 +36,17 @@ const UpdateArticleEditor = ({ article: initialArticle }) => {
     dispatch({ type: "SET_BODY", text: e.target.value });
   const addTag = (tag) => dispatch({ type: "ADD_TAG", tag: tag });
   const removeTag = (tag) => dispatch({ type: "REMOVE_TAG", tag: tag });
+
+  const handleGenerateSummary = async () => {
+    setLoading(true);
+    try {
+      const { data } = await ArticleAPI.generateSummary(posting.body, currentUser?.token);
+      dispatch({ type: "SET_SUMMARY", text: data.summary });
+    } catch (error) {
+      console.error("Failed to generate summary:", error);
+    }
+    setLoading(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,6 +108,27 @@ const UpdateArticleEditor = ({ article: initialArticle }) => {
                     value={posting.body}
                     onChange={handleBody}
                   />
+                </fieldset>
+
+                <fieldset className="form-group">
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                    <textarea
+                      className="form-control"
+                      rows={3}
+                      placeholder="Article Summary"
+                      value={posting.summary}
+                      onChange={(e) => dispatch({ type: 'SET_SUMMARY', text: e.target.value })}
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      className="btn btn-primary"
+                      type="button"
+                      onClick={handleGenerateSummary}
+                      disabled={isLoading || !posting.body}
+                    >
+                      Generate Summary
+                    </button>
+                  </div>
                 </fieldset>
 
                 <TagInput

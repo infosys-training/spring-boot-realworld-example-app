@@ -13,4 +13,5 @@ public class UpdateArticleParam {
   private String title = "";
   private String body = "";
   private String description = "";
+  private String summary = "";
 }

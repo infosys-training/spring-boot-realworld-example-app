@@ -22,7 +22,9 @@ public class ArticleCommandService {
             newArticleParam.getDescription(),
             newArticleParam.getBody(),
             newArticleParam.getTagList(),
-            creator.getId());
+            creator.getId(),
+            new org.joda.time.DateTime(),
+            newArticleParam.getSummary());
     articleRepository.save(article);
     return article;
   }
@@ -31,7 +33,8 @@ public class ArticleCommandService {
     article.update(
         updateArticleParam.getTitle(),
         updateArticleParam.getDescription(),
-        updateArticleParam.getBody());
+        updateArticleParam.getBody(),
+        updateArticleParam.getSummary());
     articleRepository.save(article);
     return article;
   }

@@ -24,5 +24,7 @@ public class NewArticleParam {
   @NotBlank(message = "can't be empty")
   private String body;
 
+  private String summary;
+
   private List<String> tagList;
 }

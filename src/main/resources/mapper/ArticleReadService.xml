@@ -14,6 +14,7 @@
         A.title articleTitle,
         A.description articleDescription,
         A.body articleBody,
+        A.summary articleSummary,
         A.created_at articleCreatedAt,
         A.updated_at articleUpdatedAt,
         T.name tagName,
