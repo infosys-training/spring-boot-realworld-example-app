@@ -62,8 +62,7 @@ public class ArticlesApi {
 
   @PostMapping("/generate-summary")
   public ResponseEntity<Map<String, String>> generateSummary(
-      @RequestBody GenerateSummaryRequest request,
-      @AuthenticationPrincipal(required = false) User user) {
+      @RequestBody GenerateSummaryRequest request) {
     String summary = generateSummaryFromBody(request.getBody());
     return ResponseEntity.ok(Map.of("summary", summary));
   }
