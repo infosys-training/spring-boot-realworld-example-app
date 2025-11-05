@@ -21,6 +21,7 @@ public class ArticleCommandService {
             newArticleParam.getTitle(),
             newArticleParam.getDescription(),
             newArticleParam.getBody(),
+            newArticleParam.getSummary(),
             newArticleParam.getTagList(),
             creator.getId());
     articleRepository.save(article);
@@ -31,7 +32,8 @@ public class ArticleCommandService {
     article.update(
         updateArticleParam.getTitle(),
         updateArticleParam.getDescription(),
-        updateArticleParam.getBody());
+        updateArticleParam.getBody(),
+        updateArticleParam.getSummary());
     articleRepository.save(article);
     return article;
   }

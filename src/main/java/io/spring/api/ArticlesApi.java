@@ -6,7 +6,9 @@ import io.spring.application.article.ArticleCommandService;
 import io.spring.application.article.NewArticleParam;
 import io.spring.core.article.Article;
 import io.spring.core.user.User;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,26 @@ public class ArticlesApi {
             put("article", articleQueryService.findById(article.getId(), user).get());
           }
         });
+  }
+
+  @PostMapping(path = "/generate-summary")
+  public ResponseEntity generateSummary(
+      @RequestBody Map<String, Object> params, @AuthenticationPrincipal User user) {
+    String body = (String) params.getOrDefault("body", "");
+
+    String summary = "";
+    if (!body.isEmpty()) {
+      String[] words = body.trim().split("\\s+");
+      int wordCount = Math.min(words.length, 15);
+      summary = String.join(" ", Arrays.copyOfRange(words, 0, wordCount));
+      if (words.length > 15) {
+        summary += "...";
+      }
+    }
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("summary", summary);
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping(path = "feed")

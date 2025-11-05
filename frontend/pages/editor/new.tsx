@@ -13,6 +13,7 @@ const PublishArticleEditor = () => {
     title: "",
     description: "",
     body: "",
+    summary: "",
     tagList: [],
   };
 
@@ -27,8 +28,22 @@ const PublishArticleEditor = () => {
     dispatch({ type: "SET_DESCRIPTION", text: e.target.value });
   const handleBody = (e) =>
     dispatch({ type: "SET_BODY", text: e.target.value });
+  const handleSummary = (e) =>
+    dispatch({ type: "SET_SUMMARY", text: e.target.value });
   const addTag = (tag) => dispatch({ type: "ADD_TAG", tag: tag });
   const removeTag = (tag) => dispatch({ type: "REMOVE_TAG", tag: tag });
+
+  const handleGenerateSummary = async () => {
+    setLoading(true);
+    const { data } = await ArticleAPI.generateSummary(
+      { body: posting.body },
+      currentUser?.token
+    );
+    if (data && data.summary) {
+      dispatch({ type: "SET_SUMMARY", text: data.summary });
+    }
+    setLoading(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,6 +99,27 @@ const PublishArticleEditor = () => {
                     value={posting.body}
                     onChange={handleBody}
                   />
+                </fieldset>
+
+                <fieldset className="form-group">
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <input
+                      className="form-control"
+                      type="text"
+                      placeholder="Article Summary"
+                      value={posting.summary}
+                      onChange={handleSummary}
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      className="btn btn-sm btn-primary"
+                      type="button"
+                      onClick={handleGenerateSummary}
+                      disabled={isLoading || !posting.body}
+                    >
+                      Generate Summary
+                    </button>
+                  </div>
                 </fieldset>
 
                 <TagInput

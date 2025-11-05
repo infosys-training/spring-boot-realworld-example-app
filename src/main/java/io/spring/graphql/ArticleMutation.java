@@ -62,7 +62,8 @@ public class ArticleMutation {
     article =
         articleCommandService.updateArticle(
             article,
-            new UpdateArticleParam(params.getTitle(), params.getBody(), params.getDescription()));
+            new UpdateArticleParam(
+                params.getTitle(), params.getBody(), params.getDescription(), ""));
     return DataFetcherResult.<ArticlePayload>newResult()
         .data(ArticlePayload.newBuilder().build())
         .localContext(article)
