@@ -80,6 +80,20 @@ const ArticleAPI = {
       status,
     };
   },
+
+  generateSummary: async (body, token) => {
+    const { data } = await axios.post(
+      `${SERVER_BASE_URL}/articles/generate-summary`,
+      JSON.stringify({ body }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${encodeURIComponent(token)}`,
+        },
+      }
+    );
+    return { data };
+  },
 };
 
 export default ArticleAPI;

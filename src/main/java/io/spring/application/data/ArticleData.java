@@ -17,6 +17,7 @@ public class ArticleData implements io.spring.application.Node {
   private String title;
   private String description;
   private String body;
+  private String summary;
   private boolean favorited;
   private int favoritesCount;
   private DateTime createdAt;

@@ -6,7 +6,9 @@ import io.spring.application.article.ArticleCommandService;
 import io.spring.application.article.NewArticleParam;
 import io.spring.core.article.Article;
 import io.spring.core.user.User;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -56,5 +58,22 @@ public class ArticlesApi {
     return ResponseEntity.ok(
         articleQueryService.findRecentArticles(
             tag, author, favoritedBy, new Page(offset, limit), user));
+  }
+
+  @PostMapping("/generate-summary")
+  public ResponseEntity<Map<String, String>> generateSummary(
+      @RequestBody Map<String, String> request) {
+    String body = request.get("body");
+    String summary = generateSummaryFromBody(body);
+    return ResponseEntity.ok(Map.of("summary", summary));
+  }
+
+  private String generateSummaryFromBody(String body) {
+    if (body == null || body.isEmpty()) {
+      return "";
+    }
+    String[] words = body.split("\\s+");
+    int wordCount = Math.min(15, words.length);
+    return String.join(" ", Arrays.copyOfRange(words, 0, wordCount));
   }
 }
