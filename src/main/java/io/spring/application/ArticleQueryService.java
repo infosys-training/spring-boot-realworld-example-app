@@ -45,8 +45,6 @@ public class ArticleQueryService {
       return Optional.empty();
     } else {
       if (user != null) {
-        // Record user view for analytics - this will cause memory leak
-        articleCacheService.recordUserView(user.getId(), id);
         fillExtraInfo(id, user, articleData);
       }
       return Optional.of(articleData);

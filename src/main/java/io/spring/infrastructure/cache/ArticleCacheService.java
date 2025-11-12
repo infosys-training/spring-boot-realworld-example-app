@@ -2,54 +2,113 @@ package io.spring.infrastructure.cache;
 
 import io.spring.application.data.ArticleData;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ArticleCacheService {
 
-  // Cache that grows indefinitely - this will cause memory leak
-  private final Map<String, ArticleData> articleCache = new ConcurrentHashMap<>();
-  private final Map<String, List<String>> userViewHistory = new ConcurrentHashMap<>();
+  private static final Logger logger = LoggerFactory.getLogger(ArticleCacheService.class);
+
+  // Bounded cache with TTL to prevent memory leak
+  private final Map<String, CacheEntry<ArticleData>> articleCache = new ConcurrentHashMap<>();
+
+  @Value("${article.cache.max-size:5000}")
+  private int maxCacheSize;
+
+  @Value("${article.cache.ttl-minutes:30}")
+  private int ttlMinutes;
 
   public void cacheArticle(String articleId, ArticleData articleData) {
-    // Cache article data for performance
-    articleCache.put(articleId, articleData);
+    // Cache article data for performance with timestamp
+    articleCache.put(articleId, new CacheEntry<>(articleData, System.currentTimeMillis()));
   }
 
   public ArticleData getCachedArticle(String articleId) {
-    return articleCache.get(articleId);
+    CacheEntry<ArticleData> entry = articleCache.get(articleId);
+    if (entry == null) {
+      return null;
+    }
+
+    long ttlMillis = ttlMinutes * 60 * 1000L;
+    if (System.currentTimeMillis() - entry.getWriteTime() > ttlMillis) {
+      articleCache.remove(articleId);
+      return null;
+    }
+
+    return entry.getValue();
   }
 
-  public void recordUserView(String userId, String articleId) {
-    // Track user view history for analytics - this grows indefinitely
-    userViewHistory.computeIfAbsent(userId, k -> new ArrayList<>()).add(articleId);
-  }
-
-  public List<String> getUserViewHistory(String userId) {
-    return userViewHistory.getOrDefault(userId, new ArrayList<>());
-  }
-
-  // This method is supposed to clean up old cache entries but has a bug
+  // Cleanup method now properly evicts old entries
   @Scheduled(fixedRate = 300000) // Run every 5 minutes
   public void cleanupCache() {
-    // BUG: This cleanup method doesn't actually clean anything!
-    // It just logs the cache size but never removes old entries
-    System.out.println("Cache cleanup running. Article cache size: " + articleCache.size());
-    System.out.println("User view history size: " + userViewHistory.size());
+    long startTime = System.currentTimeMillis();
+    int initialSize = articleCache.size();
+    long ttlMillis = ttlMinutes * 60 * 1000L;
+    long currentTime = System.currentTimeMillis();
 
-    // TODO: Implement actual cleanup logic
-    // The developer forgot to implement the cleanup, causing memory leak
+    List<String> keysToRemove = new ArrayList<>();
+    articleCache.forEach(
+        (key, entry) -> {
+          if (currentTime - entry.getWriteTime() > ttlMillis) {
+            keysToRemove.add(key);
+          }
+        });
+
+    keysToRemove.forEach(articleCache::remove);
+    logger.info("Removed {} expired entries from article cache", keysToRemove.size());
+
+    if (articleCache.size() > maxCacheSize) {
+      int entriesToRemove = articleCache.size() - maxCacheSize;
+      List<Map.Entry<String, CacheEntry<ArticleData>>> entries =
+          new ArrayList<>(articleCache.entrySet());
+
+      entries.sort(Comparator.comparingLong(e -> e.getValue().getWriteTime()));
+
+      for (int i = 0; i < entriesToRemove && i < entries.size(); i++) {
+        articleCache.remove(entries.get(i).getKey());
+      }
+
+      logger.info(
+          "Removed {} oldest entries to maintain max cache size of {}",
+          entriesToRemove,
+          maxCacheSize);
+    }
+
+    long duration = System.currentTimeMillis() - startTime;
+    logger.info(
+        "Cache cleanup completed in {}ms. Size: {} -> {}",
+        duration,
+        initialSize,
+        articleCache.size());
   }
 
   public int getCacheSize() {
     return articleCache.size();
   }
 
-  public int getViewHistorySize() {
-    return userViewHistory.size();
+  private static class CacheEntry<T> {
+    private final T value;
+    private final long writeTime;
+
+    public CacheEntry(T value, long writeTime) {
+      this.value = value;
+      this.writeTime = writeTime;
+    }
+
+    public T getValue() {
+      return value;
+    }
+
+    public long getWriteTime() {
+      return writeTime;
+    }
   }
 }
