@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -29,7 +30,6 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
-import java.util.concurrent.TimeUnit;
 
 /** Base test class providing WebDriver setup, teardown, and reporting. */
 public abstract class BaseTest {
@@ -183,7 +183,7 @@ public abstract class BaseTest {
 
           // Set preferences for faster execution
           options.setExperimentalOption("useAutomationExtension", false);
-          options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+          options.setExperimentalOption("excludeSwitches", new String[] {"enable-automation"});
         }
         driver = new ChromeDriver(options);
         break;
