@@ -24,7 +24,7 @@ public class NewArticlePage extends BasePage {
   @FindBy(css = "input[placeholder='Enter tags']")
   private WebElement tagsInput;
 
-  @FindBy(css = "button[type='submit']")
+  @FindBy(css = "button[type='button']")
   private WebElement publishButton;
 
   @FindBy(css = ".error-messages")
@@ -38,7 +38,7 @@ public class NewArticlePage extends BasePage {
   }
 
   public void navigateTo() {
-    driver.get(System.getProperty("base.url", "http://localhost:3000") + "/editor");
+    driver.get(System.getProperty("base.url", "http://localhost:3000") + "/editor/new");
   }
 
   public void enterTitle(String title) {

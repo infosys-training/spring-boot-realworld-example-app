@@ -10,16 +10,16 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 /** Page object for the Home page. */
 public class HomePage extends BasePage {
 
-  @FindBy(css = "a[href='/editor']")
+  @FindBy(css = "a[href='/editor/new']")
   private WebElement newArticleLink;
 
-  @FindBy(css = "a[href='/settings']")
+  @FindBy(css = "a[href='/user/settings']")
   private WebElement settingsLink;
 
-  @FindBy(css = "a[href='/login']")
+  @FindBy(css = "a[href='/user/login']")
   private WebElement signInLink;
 
-  @FindBy(css = "a[href='/register']")
+  @FindBy(css = "a[href='/user/register']")
   private WebElement signUpLink;
 
   @FindBy(css = ".nav-link.active")

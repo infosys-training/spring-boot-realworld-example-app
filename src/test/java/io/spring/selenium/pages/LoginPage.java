@@ -19,7 +19,7 @@ public class LoginPage extends BasePage {
   @FindBy(css = ".error-messages")
   private WebElement errorMessages;
 
-  @FindBy(css = "a[href='/register']")
+  @FindBy(css = "a[href='/user/register']")
   private WebElement signUpLink;
 
   public LoginPage(WebDriver driver) {
@@ -27,7 +27,7 @@ public class LoginPage extends BasePage {
   }
 
   public void navigateTo() {
-    driver.get(System.getProperty("base.url", "http://localhost:3000") + "/login");
+    driver.get(System.getProperty("base.url", "http://localhost:3000") + "/user/login");
   }
 
   public void enterEmail(String email) {
