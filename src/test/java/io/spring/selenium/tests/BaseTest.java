@@ -29,6 +29,7 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
+import java.util.concurrent.TimeUnit;
 
 /** Base test class providing WebDriver setup, teardown, and reporting. */
 public abstract class BaseTest {
@@ -53,6 +54,14 @@ public abstract class BaseTest {
   public void setupTest() {
     initializeDriver();
     driver.manage().window().maximize();
+
+    // Apply timeout settings from config
+    int implicitWait = Integer.parseInt(config.getProperty("implicit.wait", "5"));
+    int pageLoadTimeout = Integer.parseInt(config.getProperty("page.load.timeout", "15"));
+
+    driver.manage().timeouts().implicitlyWait(implicitWait, TimeUnit.SECONDS);
+    driver.manage().timeouts().pageLoadTimeout(pageLoadTimeout, TimeUnit.SECONDS);
+
     // Don't navigate to base URL in setup - let individual tests handle navigation
   }
 
@@ -139,7 +148,42 @@ public abstract class BaseTest {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         if (Boolean.parseBoolean(config.getProperty("headless", "false"))) {
-          options.addArguments("--headless");
+          // Basic headless setup
+          options.addArguments("--headless=new"); // Use new headless mode for better performance
+          options.addArguments("--no-sandbox");
+          options.addArguments("--disable-dev-shm-usage");
+          options.addArguments("--disable-gpu");
+          options.addArguments("--window-size=1920,1080");
+
+          // Performance optimizations for faster test execution
+          options.addArguments("--disable-extensions");
+          options.addArguments("--disable-plugins");
+          options.addArguments("--disable-images"); // Don't load images for faster page loads
+          options.addArguments("--disable-web-security");
+          options.addArguments("--allow-running-insecure-content");
+          options.addArguments("--disable-background-timer-throttling");
+          options.addArguments("--disable-renderer-backgrounding");
+          options.addArguments("--disable-backgrounding-occluded-windows");
+          options.addArguments("--disable-client-side-phishing-detection");
+          options.addArguments("--disable-sync");
+          options.addArguments("--disable-translate");
+          options.addArguments("--hide-scrollbars");
+          options.addArguments("--metrics-recording-only");
+          options.addArguments("--mute-audio");
+          options.addArguments("--no-first-run");
+          options.addArguments("--safebrowsing-disable-auto-update");
+          options.addArguments("--ignore-ssl-errors");
+          options.addArguments("--ignore-certificate-errors");
+          options.addArguments("--allow-running-insecure-content");
+          options.addArguments("--disable-blink-features=AutomationControlled");
+
+          // Memory and resource optimizations
+          options.addArguments("--memory-pressure-off");
+          options.addArguments("--max_old_space_size=4096");
+
+          // Set preferences for faster execution
+          options.setExperimentalOption("useAutomationExtension", false);
+          options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
         }
         driver = new ChromeDriver(options);
         break;
