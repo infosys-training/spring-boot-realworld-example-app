@@ -1,9 +1,33 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Selenium Smoke Test">
+<suite name="Selenium Smoke Test" parallel="classes" thread-count="1">
     
     <test name="Setup Verification">
         <classes>
             <class name="io.spring.selenium.tests.SeleniumSetupTest"/>
+        </classes>
+    </test>
+    
+    <test name="JWT Token Positive Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.JWTTokenPositiveTests"/>
+        </classes>
+    </test>
+    
+    <test name="JWT Token Validation Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.JWTTokenValidationTests"/>
+        </classes>
+    </test>
+    
+    <test name="JWT Token Error Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.JWTTokenErrorTests"/>
+        </classes>
+    </test>
+    
+    <test name="JWT Token Edge Case Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.JWTTokenEdgeCaseTests"/>
         </classes>
     </test>
     
