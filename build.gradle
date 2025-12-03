@@ -102,7 +102,7 @@ tasks.register('seleniumTest', Test) {
 	group = 'verification'
 	
 	useTestNG {
-		suites 'src/test/resources/selenium/testng-smoke.xml'
+		suites 'src/test/resources/selenium/testng.xml'
 	}
 	
 	// Only include Selenium tests
@@ -114,6 +114,26 @@ tasks.register('seleniumTest', Test) {
 	}
 	
 	// Don't fail the build on test failures (for CI reporting)
+	ignoreFailures = false
+}
+
+// Separate task for Selenium smoke tests only
+tasks.register('seleniumSmokeTest', Test) {
+	description = 'Run Selenium smoke tests only'
+	group = 'verification'
+	
+	useTestNG {
+		suites 'src/test/resources/selenium/testng-smoke.xml'
+	}
+	
+	// Only include Selenium tests
+	include 'io/spring/selenium/**'
+	
+	testLogging {
+		events "passed", "skipped", "failed"
+		showStandardStreams = true
+	}
+	
 	ignoreFailures = false
 }
 
