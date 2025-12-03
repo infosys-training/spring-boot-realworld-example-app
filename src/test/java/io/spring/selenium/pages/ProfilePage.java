@@ -1,6 +1,8 @@
 package io.spring.selenium.pages;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -232,9 +234,9 @@ public class ProfilePage extends BasePage {
     if (index < articlePreviews.size()) {
       WebElement article = articlePreviews.get(index);
       List<WebElement> tags = article.findElements(By.cssSelector(".tag-list .tag-pill"));
-      return tags.stream().map(WebElement::getText).toList();
+      return tags.stream().map(WebElement::getText).collect(Collectors.toList());
     }
-    return List.of();
+    return Collections.emptyList();
   }
 
   public int getArticleFavoriteCount(int index) {

@@ -1,6 +1,7 @@
 package io.spring.selenium.pages;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -87,7 +88,7 @@ public class ArticlePage extends BasePage {
   }
 
   public List<String> getArticleTags() {
-    return articleTags.stream().map(WebElement::getText).toList();
+    return articleTags.stream().map(WebElement::getText).collect(Collectors.toList());
   }
 
   public void clickFollowAuthor() {
