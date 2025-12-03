@@ -11,10 +11,10 @@ public class HomePage extends BasePage {
   @FindBy(css = "a[href='/']")
   private WebElement homeLink;
 
-  @FindBy(css = "a[href='/editor']")
+  @FindBy(css = "a[href='/editor/new']")
   private WebElement newArticleLink;
 
-  @FindBy(css = "a[href='/settings']")
+  @FindBy(css = "a[href='/user/settings']")
   private WebElement settingsLink;
 
   @FindBy(css = "a[href='/user/login']")
@@ -23,10 +23,10 @@ public class HomePage extends BasePage {
   @FindBy(css = "a[href='/user/register']")
   private WebElement signUpLink;
 
-  @FindBy(css = ".nav-link[href*='/profile/']")
+  @FindBy(css = "a[href*='/profile/']")
   private WebElement profileLink;
 
-  @FindBy(css = ".navbar")
+  @FindBy(css = "nav")
   private WebElement navbar;
 
   private static final String HOME_URL = "/";

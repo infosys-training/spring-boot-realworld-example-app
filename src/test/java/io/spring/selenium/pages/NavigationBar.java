@@ -19,16 +19,16 @@ public class NavigationBar extends BasePage {
   @FindBy(css = "a[href='/user/register']")
   private WebElement signUpLink;
 
-  @FindBy(css = "a[href='/editor']")
+  @FindBy(css = "a[href='/editor/new']")
   private WebElement newArticleLink;
 
-  @FindBy(css = "a[href='/settings']")
+  @FindBy(css = "a[href='/user/settings']")
   private WebElement settingsLink;
 
-  @FindBy(css = ".nav-link[href*='/profile/']")
+  @FindBy(css = "nav a[href*='/profile/']")
   private WebElement profileLink;
 
-  @FindBy(css = ".navbar")
+  @FindBy(css = "nav")
   private WebElement navbar;
 
   public NavigationBar(WebDriver driver) {
