@@ -281,4 +281,67 @@ public abstract class BaseTest {
     test = extent.createTest(testName, description);
     return test;
   }
+
+  /** Get the base URL from config. */
+  protected String getBaseUrl() {
+    return config.getProperty("base.url", "http://localhost:3000");
+  }
+
+  /** Get the API URL from config. */
+  protected String getApiUrl() {
+    return config.getProperty("api.url", "http://localhost:8080");
+  }
+
+  /** Get the test user email from config or environment. Defaults to Flyway V2 seeded user. */
+  protected String getTestUserEmail() {
+    String value = config.getProperty("test.user.email", "");
+    if (value.isEmpty() || value.startsWith("${")) {
+      value = System.getenv("TEST_USER_EMAIL");
+    }
+    return value != null && !value.isEmpty() ? value : "john@example.com";
+  }
+
+  /** Get the test user password from config or environment. Defaults to Flyway V2 seeded value. */
+  protected String getTestUserPassword() {
+    String value = config.getProperty("test.user.password", "");
+    if (value.isEmpty() || value.startsWith("${")) {
+      value = System.getenv("TEST_USER_PASSWORD");
+    }
+    return value != null && !value.isEmpty() ? value : "password123";
+  }
+
+  /**
+   * Get the target user for testing from config or environment. Defaults to Flyway V2 seeded user.
+   */
+  protected String getTargetUser() {
+    String value = config.getProperty("test.target.user", "");
+    if (value.isEmpty() || value.startsWith("${")) {
+      value = System.getenv("TEST_TARGET_USER");
+    }
+    return value != null && !value.isEmpty() ? value : "janedoe";
+  }
+
+  /**
+   * Get the second target user for testing from config or environment. Defaults to Flyway V2 seeded
+   * user.
+   */
+  protected String getSecondTargetUser() {
+    String value = config.getProperty("test.second.target.user", "");
+    if (value.isEmpty() || value.startsWith("${")) {
+      value = System.getenv("TEST_SECOND_TARGET_USER");
+    }
+    return value != null && !value.isEmpty() ? value : "bobsmith";
+  }
+
+  /**
+   * Get the second user email for testing from config or environment. Defaults to Flyway V2 seeded
+   * user.
+   */
+  protected String getSecondUserEmail() {
+    String value = config.getProperty("test.second.user.email", "");
+    if (value.isEmpty() || value.startsWith("${")) {
+      value = System.getenv("TEST_SECOND_USER_EMAIL");
+    }
+    return value != null && !value.isEmpty() ? value : "bob@example.com";
+  }
 }
