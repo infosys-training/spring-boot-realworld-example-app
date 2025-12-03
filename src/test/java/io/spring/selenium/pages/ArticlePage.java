@@ -1,6 +1,7 @@
 package io.spring.selenium.pages;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -236,7 +237,7 @@ public class ArticlePage extends BasePage {
 
   public List<String> getAllCommentBodies() {
     waitForCommentsToLoad();
-    return commentBodies.stream().map(this::getText).toList();
+    return commentBodies.stream().map(this::getText).collect(Collectors.toList());
   }
 
   public List<String> getAllCommentAuthorUsernames() {
@@ -244,12 +245,12 @@ public class ArticlePage extends BasePage {
     // Get every other author element (the text ones, not image links)
     return java.util.stream.IntStream.range(0, commentCards.size())
         .mapToObj(this::getCommentAuthorUsername)
-        .toList();
+        .collect(Collectors.toList());
   }
 
   public List<String> getAllCommentDates() {
     waitForCommentsToLoad();
-    return commentDates.stream().map(this::getText).toList();
+    return commentDates.stream().map(this::getText).collect(Collectors.toList());
   }
 
   public boolean areCommentsOrderedByDate() {

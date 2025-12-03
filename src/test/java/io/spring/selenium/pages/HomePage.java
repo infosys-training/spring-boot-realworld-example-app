@@ -1,6 +1,7 @@
 package io.spring.selenium.pages;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -106,7 +107,7 @@ public class HomePage extends BasePage {
   }
 
   public List<String> getPopularTags() {
-    return popularTags.stream().map(this::getText).toList();
+    return popularTags.stream().map(this::getText).collect(Collectors.toList());
   }
 
   public String getCurrentUrl() {
