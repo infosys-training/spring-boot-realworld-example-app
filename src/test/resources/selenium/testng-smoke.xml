@@ -7,4 +7,28 @@
         </classes>
     </test>
     
+    <test name="Profile Update Positive Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.ProfileUpdatePositiveTests"/>
+        </classes>
+    </test>
+    
+    <test name="Profile Update Validation Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.ProfileUpdateValidationTests"/>
+        </classes>
+    </test>
+    
+    <test name="Profile Update Error Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.ProfileUpdateErrorTests"/>
+        </classes>
+    </test>
+    
+    <test name="Profile Update Edge Case Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.ProfileUpdateEdgeCaseTests"/>
+        </classes>
+    </test>
+    
 </suite>
