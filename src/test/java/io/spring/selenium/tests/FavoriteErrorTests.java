@@ -5,6 +5,7 @@ import static org.testng.Assert.*;
 import io.spring.selenium.pages.ArticlePage;
 import io.spring.selenium.pages.HomePage;
 import io.spring.selenium.pages.LoginPage;
+import org.openqa.selenium.JavascriptExecutor;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -202,7 +203,7 @@ public class FavoriteErrorTests extends BaseTest {
     homePage.waitForArticlesToLoad();
 
     driver.manage().deleteAllCookies();
-    driver.executeScript("window.localStorage.clear();");
+    ((JavascriptExecutor) driver).executeScript("window.localStorage.clear();");
 
     homePage.clickFavoriteButtonForArticle(0);
     try {
