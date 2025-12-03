@@ -1,9 +1,18 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Selenium Smoke Test">
+<suite name="Selenium Test Suite" parallel="false">
     
     <test name="Setup Verification">
         <classes>
             <class name="io.spring.selenium.tests.SeleniumSetupTest"/>
+        </classes>
+    </test>
+    
+    <test name="Password Validation Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.PasswordValidationPositiveTests"/>
+            <class name="io.spring.selenium.tests.PasswordValidationTests"/>
+            <class name="io.spring.selenium.tests.PasswordValidationErrorTests"/>
+            <class name="io.spring.selenium.tests.PasswordValidationEdgeCaseTests"/>
         </classes>
     </test>
     
