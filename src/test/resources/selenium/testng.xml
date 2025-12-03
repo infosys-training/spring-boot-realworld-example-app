@@ -5,32 +5,34 @@
         <listener class-name="io.spring.selenium.listeners.TestListener"/>
     </listeners>
     
-    <test name="Smoke Tests">
-        <groups>
-            <run>
-                <include name="smoke"/>
-            </run>
-        </groups>
-        <packages>
-            <package name="io.spring.selenium.tests.*"/>
-        </packages>
+    <test name="Setup Verification">
+        <classes>
+            <class name="io.spring.selenium.tests.SeleniumSetupTest"/>
+        </classes>
     </test>
     
-    <test name="Regression Tests">
-        <groups>
-            <run>
-                <include name="regression"/>
-            </run>
-        </groups>
-        <packages>
-            <package name="io.spring.selenium.tests.*"/>
-        </packages>
+    <test name="Registration Positive Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.RegistrationPositiveTests"/>
+        </classes>
     </test>
     
-    <test name="All Tests">
-        <packages>
-            <package name="io.spring.selenium.tests.*"/>
-        </packages>
+    <test name="Registration Validation Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.RegistrationValidationTests"/>
+        </classes>
+    </test>
+    
+    <test name="Registration Error Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.RegistrationErrorTests"/>
+        </classes>
+    </test>
+    
+    <test name="Registration Edge Case Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.RegistrationEdgeCaseTests"/>
+        </classes>
     </test>
     
 </suite>
