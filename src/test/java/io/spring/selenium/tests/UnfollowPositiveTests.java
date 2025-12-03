@@ -365,7 +365,8 @@ public class UnfollowPositiveTests extends BaseTest {
 
     // Logout by clearing storage and navigating away
     driver.manage().deleteAllCookies();
-    driver.executeScript("localStorage.clear(); sessionStorage.clear();");
+    ((org.openqa.selenium.JavascriptExecutor) driver)
+        .executeScript("localStorage.clear(); sessionStorage.clear();");
     test.info("Logged out (cleared session)");
 
     // Login again
@@ -454,7 +455,8 @@ public class UnfollowPositiveTests extends BaseTest {
 
     // Logout
     driver.manage().deleteAllCookies();
-    driver.executeScript("localStorage.clear(); sessionStorage.clear();");
+    ((org.openqa.selenium.JavascriptExecutor) driver)
+        .executeScript("localStorage.clear(); sessionStorage.clear();");
 
     // Login as second user (bobsmith)
     loginPage.navigateTo(getBaseUrl());
