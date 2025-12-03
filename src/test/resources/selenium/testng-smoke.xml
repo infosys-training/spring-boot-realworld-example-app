@@ -1,9 +1,22 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Selenium Smoke Test">
+<suite name="Selenium Test Suite" parallel="false">
+    
+    <listeners>
+        <listener class-name="io.spring.selenium.listeners.TestListener"/>
+    </listeners>
     
     <test name="Setup Verification">
         <classes>
             <class name="io.spring.selenium.tests.SeleniumSetupTest"/>
+        </classes>
+    </test>
+    
+    <test name="Update Article Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.UpdateArticlePositiveTests"/>
+            <class name="io.spring.selenium.tests.UpdateArticleValidationTests"/>
+            <class name="io.spring.selenium.tests.UpdateArticleErrorTests"/>
+            <class name="io.spring.selenium.tests.UpdateArticleEdgeCaseTests"/>
         </classes>
     </test>
     
