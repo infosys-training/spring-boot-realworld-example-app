@@ -1,6 +1,7 @@
 package io.spring.selenium.pages;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -133,7 +134,7 @@ public class ArticlePage extends BasePage {
   }
 
   public List<String> getTags() {
-    return tagList.stream().map(WebElement::getText).toList();
+    return tagList.stream().map(WebElement::getText).collect(Collectors.toList());
   }
 
   public boolean isDeleteButtonVisible() {
