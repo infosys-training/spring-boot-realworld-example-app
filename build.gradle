@@ -102,7 +102,7 @@ tasks.register('seleniumTest', Test) {
 	group = 'verification'
 	
 	useTestNG {
-		suites 'src/test/resources/selenium/testng-smoke.xml'
+		suites 'src/test/resources/selenium/testng-registration.xml'
 	}
 	
 	// Only include Selenium tests
