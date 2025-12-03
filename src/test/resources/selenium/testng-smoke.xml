@@ -1,9 +1,22 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Selenium Smoke Test">
+<suite name="Selenium Smoke Test" parallel="classes" thread-count="1">
+    
+    <listeners>
+        <listener class-name="io.spring.selenium.listeners.TestListener"/>
+    </listeners>
     
     <test name="Setup Verification">
         <classes>
             <class name="io.spring.selenium.tests.SeleniumSetupTest"/>
+        </classes>
+    </test>
+    
+    <test name="US-AUTH-003 Get Current User Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.GetCurrentUserPositiveTests"/>
+            <class name="io.spring.selenium.tests.GetCurrentUserValidationTests"/>
+            <class name="io.spring.selenium.tests.GetCurrentUserErrorTests"/>
+            <class name="io.spring.selenium.tests.GetCurrentUserEdgeCaseTests"/>
         </classes>
     </test>
     
