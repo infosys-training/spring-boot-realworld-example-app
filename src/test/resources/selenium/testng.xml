@@ -5,32 +5,14 @@
         <listener class-name="io.spring.selenium.listeners.TestListener"/>
     </listeners>
     
-    <test name="Smoke Tests">
-        <groups>
-            <run>
-                <include name="smoke"/>
-            </run>
-        </groups>
-        <packages>
-            <package name="io.spring.selenium.tests.*"/>
-        </packages>
-    </test>
-    
-    <test name="Regression Tests">
-        <groups>
-            <run>
-                <include name="regression"/>
-            </run>
-        </groups>
-        <packages>
-            <package name="io.spring.selenium.tests.*"/>
-        </packages>
-    </test>
-    
-    <test name="All Tests">
-        <packages>
-            <package name="io.spring.selenium.tests.*"/>
-        </packages>
+    <test name="Article Tests - US-ARTICLE-002">
+        <classes>
+            <class name="io.spring.selenium.tests.SeleniumSetupTest"/>
+            <class name="io.spring.selenium.tests.ArticlePositiveTests"/>
+            <class name="io.spring.selenium.tests.ArticleValidationTests"/>
+            <class name="io.spring.selenium.tests.ArticleErrorTests"/>
+            <class name="io.spring.selenium.tests.ArticleEdgeCaseTests"/>
+        </classes>
     </test>
     
 </suite>
