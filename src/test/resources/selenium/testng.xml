@@ -27,6 +27,15 @@
         </packages>
     </test>
     
+    <test name="Profile Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.ProfilePositiveTests"/>
+            <class name="io.spring.selenium.tests.ProfileValidationTests"/>
+            <class name="io.spring.selenium.tests.ProfileErrorTests"/>
+            <class name="io.spring.selenium.tests.ProfileEdgeCaseTests"/>
+        </classes>
+    </test>
+    
     <test name="All Tests">
         <packages>
             <package name="io.spring.selenium.tests.*"/>
