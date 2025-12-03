@@ -1,6 +1,8 @@
 package io.spring.selenium.pages;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -135,9 +137,9 @@ public class RegisterPage extends BasePage {
   public List<String> getErrorMessages() {
     try {
       waitForVisibility(errorContainer);
-      return errorMessages.stream().map(WebElement::getText).toList();
+      return errorMessages.stream().map(WebElement::getText).collect(Collectors.toList());
     } catch (Exception e) {
-      return List.of();
+      return new ArrayList<>();
     }
   }
 
