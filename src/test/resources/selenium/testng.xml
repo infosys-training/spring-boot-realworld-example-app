@@ -33,4 +33,13 @@
         </packages>
     </test>
     
+    <test name="Token Authentication Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.TokenAuthPositiveTests"/>
+            <class name="io.spring.selenium.tests.TokenAuthValidationTests"/>
+            <class name="io.spring.selenium.tests.TokenAuthErrorTests"/>
+            <class name="io.spring.selenium.tests.TokenAuthEdgeCaseTests"/>
+        </classes>
+    </test>
+    
 </suite>
