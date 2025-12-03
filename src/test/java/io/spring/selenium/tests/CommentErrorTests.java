@@ -5,6 +5,7 @@ import static org.testng.Assert.*;
 import io.spring.selenium.pages.ArticlePage;
 import io.spring.selenium.pages.HomePage;
 import io.spring.selenium.pages.LoginPage;
+import org.openqa.selenium.JavascriptExecutor;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -112,8 +113,8 @@ public class CommentErrorTests extends BaseTest {
     navigateToFirstArticle();
 
     driver.manage().deleteAllCookies();
-    driver.executeScript("window.localStorage.clear();");
-    driver.executeScript("window.sessionStorage.clear();");
+    ((JavascriptExecutor) driver).executeScript("window.localStorage.clear();");
+    ((JavascriptExecutor) driver).executeScript("window.sessionStorage.clear();");
 
     driver.navigate().refresh();
 
@@ -139,8 +140,9 @@ public class CommentErrorTests extends BaseTest {
 
     driver.get(BASE_URL);
 
-    driver.executeScript(
-        "window.localStorage.setItem('user', JSON.stringify({token: 'invalid.jwt.token'}));");
+    ((JavascriptExecutor) driver)
+        .executeScript(
+            "window.localStorage.setItem('user', JSON.stringify({token: 'invalid.jwt.token'}));");
 
     homePage.navigateTo(BASE_URL);
     homePage.waitForArticlesToLoad();
@@ -168,7 +170,7 @@ public class CommentErrorTests extends BaseTest {
         "Verify that requests without auth header are rejected");
 
     driver.manage().deleteAllCookies();
-    driver.executeScript("window.localStorage.clear();");
+    ((JavascriptExecutor) driver).executeScript("window.localStorage.clear();");
 
     homePage.navigateTo(BASE_URL);
     homePage.waitForArticlesToLoad();
@@ -246,8 +248,9 @@ public class CommentErrorTests extends BaseTest {
 
     driver.get(BASE_URL);
 
-    driver.executeScript(
-        "window.localStorage.setItem('user', JSON.stringify({token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.tampered_signature'}));");
+    ((JavascriptExecutor) driver)
+        .executeScript(
+            "window.localStorage.setItem('user', JSON.stringify({token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.tampered_signature'}));");
 
     homePage.navigateTo(BASE_URL);
     homePage.waitForArticlesToLoad();
