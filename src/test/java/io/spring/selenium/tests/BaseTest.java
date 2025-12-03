@@ -139,7 +139,12 @@ public abstract class BaseTest {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         if (Boolean.parseBoolean(config.getProperty("headless", "false"))) {
-          options.addArguments("--headless");
+          options.addArguments("--headless=new");
+          options.addArguments("--no-sandbox");
+          options.addArguments("--disable-dev-shm-usage");
+          options.addArguments("--disable-gpu");
+          options.addArguments("--window-size=1920,1080");
+          options.addArguments("--remote-allow-origins=*");
         }
         driver = new ChromeDriver(options);
         break;
