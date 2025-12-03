@@ -13,10 +13,10 @@ public class NavigationBar extends BasePage {
   @FindBy(css = "a[href='/']")
   private WebElement homeLink;
 
-  @FindBy(css = "a[href='/login']")
+  @FindBy(css = "a[href='/user/login']")
   private WebElement signInLink;
 
-  @FindBy(css = "a[href='/register']")
+  @FindBy(css = "a[href='/user/register']")
   private WebElement signUpLink;
 
   @FindBy(css = "a[href='/editor']")

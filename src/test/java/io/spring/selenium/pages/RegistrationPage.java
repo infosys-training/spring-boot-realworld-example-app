@@ -27,10 +27,10 @@ public class RegistrationPage extends BasePage {
   @FindBy(css = ".error-messages")
   private WebElement errorMessagesContainer;
 
-  @FindBy(css = "a[href='/register']")
+  @FindBy(css = "a[href='/user/register']")
   private WebElement signUpLink;
 
-  private static final String REGISTRATION_URL = "/register";
+  private static final String REGISTRATION_URL = "/user/register";
 
   public RegistrationPage(WebDriver driver) {
     super(driver);
