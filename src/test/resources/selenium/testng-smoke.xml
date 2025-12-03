@@ -1,9 +1,43 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Selenium Smoke Test">
+<suite name="Selenium Test Suite" parallel="classes" thread-count="1">
+    
+    <listeners>
+        <listener class-name="io.spring.selenium.listeners.TestListener"/>
+    </listeners>
     
     <test name="Setup Verification">
         <classes>
             <class name="io.spring.selenium.tests.SeleniumSetupTest"/>
+        </classes>
+    </test>
+    
+    <test name="Favorited Articles Positive Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.FavoritedArticlesPositiveTests"/>
+        </classes>
+    </test>
+    
+    <test name="Favorited Articles Validation Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.FavoritedArticlesValidationTests"/>
+        </classes>
+    </test>
+    
+    <test name="Favorited Articles Pagination Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.FavoritedArticlesPaginationTests"/>
+        </classes>
+    </test>
+    
+    <test name="Favorited Articles Error Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.FavoritedArticlesErrorTests"/>
+        </classes>
+    </test>
+    
+    <test name="Favorited Articles Edge Case Tests">
+        <classes>
+            <class name="io.spring.selenium.tests.FavoritedArticlesEdgeCaseTests"/>
         </classes>
     </test>
     
