@@ -48,6 +48,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .authorizeRequests()
         .antMatchers(HttpMethod.OPTIONS)
         .permitAll()
+        .antMatchers("/actuator/health", "/actuator/health/**")
+        .permitAll()
         .antMatchers("/graphiql")
         .permitAll()
         .antMatchers("/graphql")

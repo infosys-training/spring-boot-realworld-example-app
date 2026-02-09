@@ -36,11 +36,11 @@ And the code is organized as this:
 
 Integration with Spring Security and add other filter for jwt token process.
 
-The secret key is stored in `application.properties`.
+The secret key is stored in `application.properties` and can be overridden via the `JWT_SECRET` environment variable.
 
 # Database
 
-It uses a ~~H2 in-memory database~~ sqlite database (for easy local test without losing test data after every restart), can be changed easily in the `application.properties` for any other database.
+The application uses **PostgreSQL** for production and **H2 (PostgreSQL compatibility mode)** for testing.
 
 ## Sample Data & Login Credentials
 
@@ -66,14 +66,37 @@ The application includes seed data with sample users, articles, tags, comments, 
 
 You'll need Java 11 installed.
 
-    ./gradlew bootRun
+### Local Development with PostgreSQL
 
-**Note**: `bootRun` automatically cleans and recreates the database with seed data on each run to avoid Flyway migration conflicts during development.
+1. Start a PostgreSQL instance (e.g., via Docker):
+
+```bash
+docker run -d --name realworld-postgres \
+  -e POSTGRES_DB=realworld \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 \
+  postgres:14-alpine
+```
+
+2. Run the application:
+
+```bash
+./gradlew bootRun
+```
 
 To test that it works, open a browser tab at http://localhost:8080/tags .  
 Alternatively, you can run
 
     curl http://localhost:8080/tags
+
+### Health Check
+
+The application exposes Spring Boot Actuator endpoints:
+
+```bash
+curl http://localhost:8080/actuator/health
+```
 
 ## Frontend (Next.js)
 
@@ -95,12 +118,180 @@ The frontend will run on http://localhost:3000 and connect to the backend on por
 
 **Note**: The `npm run dev` script includes `NODE_OPTIONS=--openssl-legacy-provider` for compatibility with newer Node versions, but Node 14-16 is still recommended for best compatibility.
 
-# Try it out with [Docker](https://www.docker.com/)
+# Docker
 
-You'll need Docker installed.
-	
-    ./gradlew bootBuildImage --imageName spring-boot-realworld-example-app
-    docker run -p 8081:8080 spring-boot-realworld-example-app
+## Build and Run with Docker
+
+```bash
+docker build -t realworld-api .
+docker run -p 8080:8080 \
+  -e DATABASE_URL=jdbc:postgresql://host.docker.internal:5432/realworld \
+  -e DATABASE_USERNAME=postgres \
+  -e DATABASE_PASSWORD=postgres \
+  -e JWT_SECRET=your-secret-key \
+  realworld-api
+```
+
+The Dockerfile uses a multi-stage build with:
+- **Build stage**: Gradle 7.4 + JDK 11 for compilation
+- **Runtime stage**: Eclipse Temurin JRE 11 Alpine for minimal image size
+- Non-root user for security
+- Proper layer caching for dependencies
+
+# Amazon EKS Deployment
+
+## Prerequisites
+
+- AWS CLI configured with appropriate permissions
+- `kubectl` installed and configured
+- An EKS cluster created
+- Amazon ECR repository created
+- AWS Load Balancer Controller installed on the cluster
+- PostgreSQL database (Amazon RDS recommended)
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DATABASE_URL` | PostgreSQL JDBC connection string | Yes |
+| `DATABASE_USERNAME` | Database username | Yes |
+| `DATABASE_PASSWORD` | Database password | Yes |
+| `JWT_SECRET` | Secret key for JWT token signing | Yes |
+| `SPRING_PROFILES_ACTIVE` | Spring profile (`prod` for production) | Yes |
+| `SERVER_PORT` | Server port (default: 8080) | No |
+| `DB_POOL_MAX_SIZE` | HikariCP max pool size (default: 10) | No |
+| `DB_POOL_MIN_IDLE` | HikariCP min idle connections (default: 5) | No |
+
+## PostgreSQL Setup (Amazon RDS)
+
+1. Create an RDS PostgreSQL instance:
+
+```bash
+aws rds create-db-instance \
+  --db-instance-identifier realworld-db \
+  --db-instance-class db.t3.micro \
+  --engine postgres \
+  --engine-version 14.7 \
+  --master-username postgres \
+  --master-user-password <YOUR_PASSWORD> \
+  --allocated-storage 20 \
+  --vpc-security-group-ids <SECURITY_GROUP_ID> \
+  --db-name realworld
+```
+
+2. Ensure the RDS security group allows inbound traffic from the EKS cluster's security group on port 5432.
+
+## Deploy to EKS
+
+### 1. Create ECR Repository
+
+```bash
+aws ecr create-repository --repository-name realworld-api --region us-east-1
+```
+
+### 2. Build and Push Docker Image
+
+```bash
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+AWS_REGION=us-east-1
+
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+docker build -t realworld-api .
+docker tag realworld-api:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/realworld-api:latest
+docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/realworld-api:latest
+```
+
+### 3. Update Kubernetes Manifests
+
+Edit `k8s/configmap.yaml` with your RDS endpoint:
+```yaml
+data:
+  database-url: "jdbc:postgresql://<RDS_ENDPOINT>:5432/realworld"
+```
+
+Edit `k8s/secret.yaml` with your credentials:
+```yaml
+stringData:
+  database-username: "postgres"
+  database-password: "<YOUR_PASSWORD>"
+  jwt-secret: "<YOUR_JWT_SECRET>"
+```
+
+Edit `k8s/deployment.yaml` with your ECR image URI:
+```yaml
+image: <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/realworld-api:latest
+```
+
+### 4. Apply Kubernetes Manifests
+
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secret.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/ingress.yaml
+kubectl apply -f k8s/hpa.yaml
+```
+
+### 5. Verify Deployment
+
+```bash
+kubectl get pods -n realworld
+kubectl get svc -n realworld
+kubectl get ingress -n realworld
+
+kubectl logs -f deployment/realworld-api -n realworld
+```
+
+## Troubleshooting
+
+### Check pod status
+```bash
+kubectl describe pod <POD_NAME> -n realworld
+```
+
+### View application logs
+```bash
+kubectl logs -f deployment/realworld-api -n realworld
+```
+
+### Check health endpoint
+```bash
+kubectl port-forward svc/realworld-api 8080:8080 -n realworld
+curl http://localhost:8080/actuator/health
+```
+
+### Restart deployment
+```bash
+kubectl rollout restart deployment/realworld-api -n realworld
+```
+
+### Scale deployment manually
+```bash
+kubectl scale deployment/realworld-api --replicas=3 -n realworld
+```
+
+### Check HPA status
+```bash
+kubectl get hpa -n realworld
+```
+
+# CI/CD Pipeline
+
+The GitHub Actions workflow (`.github/workflows/gradle.yml`) includes:
+
+1. **Build & Test**: Runs on every push/PR — compiles code and runs unit tests
+2. **Docker Build & Push**: On `master` branch or version tags — builds Docker image and pushes to ECR
+3. **Deploy to EKS**: On `master` branch or version tags — applies Kubernetes manifests and updates the deployment
+
+### Required GitHub Secrets
+
+| Secret | Description |
+|--------|-------------|
+| `AWS_ACCESS_KEY_ID` | AWS IAM access key |
+| `AWS_SECRET_ACCESS_KEY` | AWS IAM secret key |
 
 # Try it out with a RealWorld frontend
 

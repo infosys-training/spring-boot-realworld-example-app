@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: realworld-config
+  namespace: realworld
+  labels:
+    app: realworld-api
+data:
+  database-url: "jdbc:postgresql://realworld-db.xxxxxxxxxx.us-east-1.rds.amazonaws.com:5432/realworld"
+  db-pool-max-size: "10"
+  db-pool-min-idle: "5"
+  db-pool-idle-timeout: "300000"
+  db-pool-connection-timeout: "20000"
