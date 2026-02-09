@@ -40,7 +40,7 @@ The secret key is stored in `application.properties` and can be overridden via t
 
 # Database
 
-The application uses **PostgreSQL** for production and **H2 (PostgreSQL compatibility mode)** for testing.
+The application uses **PostgreSQL** for production and **SQLite in-memory** for testing. Local development defaults to SQLite file-based storage (`dev.db`) for convenience.
 
 ## Sample Data & Login Credentials
 
