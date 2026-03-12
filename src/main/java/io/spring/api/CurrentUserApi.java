@@ -7,9 +7,9 @@ import io.spring.application.user.UpdateUserCommand;
 import io.spring.application.user.UpdateUserParam;
 import io.spring.application.user.UserService;
 import io.spring.core.user.User;
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
-import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,7 +29,7 @@ public class CurrentUserApi {
   private UserService userService;
 
   @GetMapping
-  public ResponseEntity currentUser(
+  public ResponseEntity<?> currentUser(
       @AuthenticationPrincipal User currentUser,
       @RequestHeader(value = "Authorization") String authorization) {
     UserData userData = userQueryService.findById(currentUser.getId()).get();
@@ -38,7 +38,7 @@ public class CurrentUserApi {
   }
 
   @PutMapping
-  public ResponseEntity updateProfile(
+  public ResponseEntity<?> updateProfile(
       @AuthenticationPrincipal User currentUser,
       @RequestHeader("Authorization") String token,
       @Valid @RequestBody UpdateUserParam updateUserParam) {

@@ -11,11 +11,11 @@ import io.spring.core.comment.Comment;
 import io.spring.core.comment.CommentRepository;
 import io.spring.core.service.AuthorizationService;
 import io.spring.core.user.User;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,7 +51,7 @@ public class CommentsApi {
   }
 
   @GetMapping
-  public ResponseEntity getComments(
+  public ResponseEntity<?> getComments(
       @PathVariable("slug") String slug, @AuthenticationPrincipal User user) {
     Article article =
         articleRepository.findBySlug(slug).orElseThrow(ResourceNotFoundException::new);
@@ -65,7 +65,7 @@ public class CommentsApi {
   }
 
   @RequestMapping(path = "{id}", method = RequestMethod.DELETE)
-  public ResponseEntity deleteComment(
+  public ResponseEntity<?> deleteComment(
       @PathVariable("slug") String slug,
       @PathVariable("id") String commentId,
       @AuthenticationPrincipal User user) {
