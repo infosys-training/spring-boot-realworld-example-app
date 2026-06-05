@@ -39,6 +39,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .disable()
         .cors()
         .and()
+        .headers()
+        .contentTypeOptions()
+        .and()
+        .frameOptions()
+        .deny()
+        .xssProtection()
+        .and()
+        .cacheControl()
+        .and()
+        .httpStrictTransportSecurity()
+        .includeSubDomains(true)
+        .maxAgeInSeconds(31536000)
+        .and()
+        .and()
         .exceptionHandling()
         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
         .and()
@@ -69,13 +83,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     final CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(asList("*"));
     configuration.setAllowedMethods(asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH"));
-    // setAllowCredentials(true) is important, otherwise:
-    // The value of the 'Access-Control-Allow-Origin' header in the response must not be the
-    // wildcard '*' when the request's credentials mode is 'include'.
     configuration.setAllowCredentials(false);
-    // setAllowedHeaders is important! Without it, OPTIONS preflight request
-    // will fail with 403 Invalid CORS request
     configuration.setAllowedHeaders(asList("Authorization", "Cache-Control", "Content-Type"));
+    configuration.setMaxAge(3600L);
     final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
