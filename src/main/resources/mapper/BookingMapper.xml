@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.spring.infrastructure.mybatis.mapper.BookingMapper">
+    <resultMap id="booking" type="io.spring.core.booking.Booking">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="flight_id" property="flightId"/>
+        <result column="passenger_name" property="passengerName"/>
+        <result column="passenger_email" property="passengerEmail"/>
+        <result column="passenger_phone" property="passengerPhone"/>
+        <result column="seat_number" property="seatNumber"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <insert id="insert">
+        insert into bookings(id, user_id, flight_id, passenger_name, passenger_email, passenger_phone, seat_number, status, created_at, updated_at)
+        values(
+          #{booking.id},
+          #{booking.userId},
+          #{booking.flightId},
+          #{booking.passengerName},
+          #{booking.passengerEmail},
+          #{booking.passengerPhone},
+          #{booking.seatNumber},
+          #{booking.status},
+          #{booking.createdAt},
+          #{booking.updatedAt})
+    </insert>
+
+    <update id="update">
+        update bookings
+        set status = #{booking.status},
+            updated_at = #{booking.updatedAt}
+        where id = #{booking.id}
+    </update>
+
+    <select id="findById" resultMap="booking">
+        select * from bookings where id = #{id}
+    </select>
+
+    <select id="findByUserId" resultMap="booking">
+        select * from bookings
+        where user_id = #{userId}
+        order by created_at desc
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="countByUserId" resultType="int">
+        select count(*) from bookings where user_id = #{userId}
+    </select>
+</mapper>

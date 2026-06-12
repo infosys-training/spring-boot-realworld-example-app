@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.spring.infrastructure.mybatis.mapper.FlightMapper">
+    <resultMap id="flight" type="io.spring.core.flight.Flight">
+        <id column="id" property="id"/>
+        <result column="flight_number" property="flightNumber"/>
+        <result column="airline" property="airline"/>
+        <result column="origin" property="origin"/>
+        <result column="destination" property="destination"/>
+        <result column="departure_time" property="departureTime"/>
+        <result column="arrival_time" property="arrivalTime"/>
+        <result column="price" property="price"/>
+        <result column="available_seats" property="availableSeats"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <insert id="insert">
+        insert into flights(id, flight_number, airline, origin, destination, departure_time, arrival_time, price, available_seats, created_at, updated_at)
+        values(
+          #{flight.id},
+          #{flight.flightNumber},
+          #{flight.airline},
+          #{flight.origin},
+          #{flight.destination},
+          #{flight.departureTime},
+          #{flight.arrivalTime},
+          #{flight.price},
+          #{flight.availableSeats},
+          #{flight.createdAt},
+          #{flight.updatedAt})
+    </insert>
+
+    <update id="update">
+        update flights
+        set available_seats = #{flight.availableSeats},
+            updated_at = #{flight.updatedAt}
+        where id = #{flight.id}
+    </update>
+
+    <select id="findById" resultMap="flight">
+        select * from flights where id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="flight">
+        select * from flights
+        <where>
+            <if test="origin != null and origin != ''">
+                and origin = #{origin}
+            </if>
+            <if test="destination != null and destination != ''">
+                and destination = #{destination}
+            </if>
+        </where>
+        order by departure_time asc
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="count" resultType="int">
+        select count(*) from flights
+        <where>
+            <if test="origin != null and origin != ''">
+                and origin = #{origin}
+            </if>
+            <if test="destination != null and destination != ''">
+                and destination = #{destination}
+            </if>
+        </where>
+    </select>
+</mapper>
